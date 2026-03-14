@@ -39,4 +39,14 @@ public class ShiftRepository(AppDbContext db) : IShiftRepository
         db.Shifts.Remove(shift);
         await db.SaveChangesAsync(ct);
     }
+
+    public async Task UpdateTimesByCategoryAsync(Guid categoryId, TimeOnly startTime, TimeOnly endTime, CancellationToken ct = default)
+    {
+        await db.Shifts
+            .Where(s => s.CategoryId == categoryId)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(x => x.StartTime, startTime)
+                .SetProperty(x => x.EndTime, endTime)
+                .SetProperty(x => x.UpdatedAt, DateTime.UtcNow), ct);
+    }
 }

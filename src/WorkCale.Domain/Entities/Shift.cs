@@ -47,4 +47,11 @@ public class Shift
         Notes = notes;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    public void UpdateTimes(TimeOnly startTime, TimeOnly endTime)
+    {
+        StartTime = startTime;
+        EndTime = endTime;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }

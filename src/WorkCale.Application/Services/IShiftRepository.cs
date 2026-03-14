@@ -9,4 +9,5 @@ public interface IShiftRepository
     Task AddAsync(Shift shift, CancellationToken ct = default);
     Task UpdateAsync(Shift shift, CancellationToken ct = default);
     Task DeleteAsync(Shift shift, CancellationToken ct = default);
+    Task UpdateTimesByCategoryAsync(Guid categoryId, TimeOnly startTime, TimeOnly endTime, CancellationToken ct = default);
 }
