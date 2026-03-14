@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: workcale
+      POSTGRES_USER: workcale
+      POSTGRES_PASSWORD: workcale123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workcale"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Database=${DB_CONNECTION_STRING}
+      - Jwt__Key=${JWT_KEY}
+      - Jwt__Issuer=WorkCale.Api
+      - Jwt__Audience=WorkCale.Client
+      - Jwt__ExpirationMinutes=60
+      - Google__ClientId=${GOOGLE_CLIENT_ID}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

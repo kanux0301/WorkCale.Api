@@ -1,0 +1,17 @@
+# Secrets
+.env
+
+# Build output
+**/bin/
+**/obj/
+
+# User secrets
+**/secrets.json
+
+# Rider/VS
+.idea/
+.vs/
+*.user
+
+# Logs
+*.log

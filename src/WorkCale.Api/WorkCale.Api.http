@@ -1,0 +1,6 @@
+@WorkCale.Api_HostAddress = http://localhost:5153
+
+GET {{WorkCale.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

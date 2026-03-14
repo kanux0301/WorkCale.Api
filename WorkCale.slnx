@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WorkCale.Api/WorkCale.Api.csproj" />
+    <Project Path="src/WorkCale.Application/WorkCale.Application.csproj" />
+    <Project Path="src/WorkCale.Domain/WorkCale.Domain.csproj" />
+    <Project Path="src/WorkCale.Infrastructure/WorkCale.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/WorkCale.Api.IntegrationTests/WorkCale.Api.IntegrationTests.csproj" />
+    <Project Path="test/WorkCale.Api.Tests/WorkCale.Api.Tests.csproj" />
+    <Project Path="test/WorkCale.Application.Tests/WorkCale.Application.Tests.csproj" />
+    <Project Path="test/WorkCale.Domain.Tests/WorkCale.Domain.Tests.csproj" />
+    <Project Path="test/WorkCale.Infrastructure.Tests/WorkCale.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>

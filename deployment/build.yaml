@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  api:
+    name: API — Build & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: workcale_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.x"
+
+      - name: Restore
+        run: dotnet restore WorkCale.Api/WorkCale.slnx
+
+      - name: Build
+        run: dotnet build WorkCale.Api/WorkCale.slnx --no-restore --configuration Release
+
+      - name: Unit Tests
+        run: dotnet test WorkCale.Api/test/WorkCale.Application.Tests --no-build --configuration Release --verbosity normal
+
+      - name: Integration Tests
+        env:
+          ConnectionStrings__Database: "Host=localhost;Port=5432;Database=workcale_test;Username=postgres;Password=postgres"
+          Jwt__Key: "TestJwtKey-For-CI-Only-32-Characters!!"
+          Jwt__Issuer: "WorkCale.Api"
+          Jwt__Audience: "WorkCale.Client"
+          Google__ClientId: ""
+        run: dotnet test WorkCale.Api/test/WorkCale.Api.IntegrationTests --no-build --configuration Release --verbosity normal
+
+  mobile:
+    name: Mobile — Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: WorkCale.Mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: WorkCale.Mobile
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+        working-directory: WorkCale.Mobile
