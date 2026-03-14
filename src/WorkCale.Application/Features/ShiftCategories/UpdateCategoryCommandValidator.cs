@@ -11,5 +11,11 @@ public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCo
             .NotEmpty()
             .Matches(@"^#[0-9A-Fa-f]{6}$")
             .WithMessage("Color must be a valid hex color (e.g. #F59E0B).");
+        RuleFor(x => x.DefaultStartTime)
+            .Matches(@"^\d{2}:\d{2}$").WithMessage("DefaultStartTime must be in HH:mm format.")
+            .When(x => x.DefaultStartTime != null);
+        RuleFor(x => x.DefaultEndTime)
+            .Matches(@"^\d{2}:\d{2}$").WithMessage("DefaultEndTime must be in HH:mm format.")
+            .When(x => x.DefaultEndTime != null);
     }
 }

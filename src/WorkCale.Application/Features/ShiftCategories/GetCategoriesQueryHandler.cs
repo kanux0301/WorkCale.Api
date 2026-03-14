@@ -10,6 +10,6 @@ public class GetCategoriesQueryHandler(IShiftCategoryRepository repository)
     public async Task<IEnumerable<ShiftCategoryDto>> Handle(GetCategoriesQuery request, CancellationToken ct)
     {
         var categories = await repository.GetByUserIdAsync(request.UserId, ct);
-        return categories.Select(c => new ShiftCategoryDto(c.Id, c.Name, c.Color, c.CreatedAt));
+        return categories.Select(c => new ShiftCategoryDto(c.Id, c.Name, c.Color, c.DefaultStartTime, c.DefaultEndTime, c.CreatedAt));
     }
 }

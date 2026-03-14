@@ -30,6 +30,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasKey(c => c.Id);
             e.Property(c => c.Name).IsRequired().HasMaxLength(50);
             e.Property(c => c.Color).IsRequired().HasMaxLength(7);
+            e.Property(c => c.DefaultStartTime).HasMaxLength(5);
+            e.Property(c => c.DefaultEndTime).HasMaxLength(5);
             e.HasIndex(c => c.UserId);
             e.HasOne(c => c.User)
                 .WithMany(u => u.ShiftCategories)

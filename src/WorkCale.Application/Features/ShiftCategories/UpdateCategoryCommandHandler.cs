@@ -15,9 +15,9 @@ public class UpdateCategoryCommandHandler(IShiftCategoryRepository repository)
         if (category.UserId != request.UserId)
             throw new UnauthorizedAccessException("You do not own this category.");
 
-        category.Update(request.Name, request.Color);
+        category.Update(request.Name, request.Color, request.DefaultStartTime, request.DefaultEndTime);
         await repository.UpdateAsync(category, ct);
 
-        return new ShiftCategoryDto(category.Id, category.Name, category.Color, category.CreatedAt);
+        return new ShiftCategoryDto(category.Id, category.Name, category.Color, category.DefaultStartTime, category.DefaultEndTime, category.CreatedAt);
     }
 }

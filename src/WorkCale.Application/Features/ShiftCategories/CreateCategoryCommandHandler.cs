@@ -10,8 +10,8 @@ public class CreateCategoryCommandHandler(IShiftCategoryRepository repository)
 {
     public async Task<ShiftCategoryDto> Handle(CreateCategoryCommand request, CancellationToken ct)
     {
-        var category = ShiftCategory.Create(request.UserId, request.Name, request.Color);
+        var category = ShiftCategory.Create(request.UserId, request.Name, request.Color, request.DefaultStartTime, request.DefaultEndTime);
         await repository.AddAsync(category, ct);
-        return new ShiftCategoryDto(category.Id, category.Name, category.Color, category.CreatedAt);
+        return new ShiftCategoryDto(category.Id, category.Name, category.Color, category.DefaultStartTime, category.DefaultEndTime, category.CreatedAt);
     }
 }

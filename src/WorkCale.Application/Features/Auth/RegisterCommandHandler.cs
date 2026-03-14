@@ -23,9 +23,9 @@ public class RegisterCommandHandler(
         var user = User.Create(request.Email, request.DisplayName, hash);
         await userRepository.AddAsync(user, ct);
 
-        // Seed 2 default categories
-        await categoryRepository.AddAsync(ShiftCategory.Create(user.Id, "Day Shift", "#F59E0B"), ct);
-        await categoryRepository.AddAsync(ShiftCategory.Create(user.Id, "Night Shift", "#6366F1"), ct);
+        // Seed 2 default categories with default times
+        await categoryRepository.AddAsync(ShiftCategory.Create(user.Id, "Day Shift", "#F59E0B", "08:00", "16:00"), ct);
+        await categoryRepository.AddAsync(ShiftCategory.Create(user.Id, "Night Shift", "#6366F1", "20:00", "04:00"), ct);
 
         return await IssueTokens(user, ct);
     }

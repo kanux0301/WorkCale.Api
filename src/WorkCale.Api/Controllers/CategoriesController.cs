@@ -25,7 +25,7 @@ public class CategoriesController(IMediator mediator) : ControllerBase
     public async Task<ActionResult<ShiftCategoryDto>> Create([FromBody] CreateCategoryRequest request, CancellationToken ct)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-        var result = await mediator.Send(new CreateCategoryCommand(UserId, request.Name, request.Color), ct);
+        var result = await mediator.Send(new CreateCategoryCommand(UserId, request.Name, request.Color, request.DefaultStartTime, request.DefaultEndTime), ct);
         return CreatedAtAction(nameof(GetAll), result);
     }
 
@@ -33,7 +33,7 @@ public class CategoriesController(IMediator mediator) : ControllerBase
     public async Task<ActionResult<ShiftCategoryDto>> Update(Guid id, [FromBody] UpdateCategoryRequest request, CancellationToken ct)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
-        var result = await mediator.Send(new UpdateCategoryCommand(id, UserId, request.Name, request.Color), ct);
+        var result = await mediator.Send(new UpdateCategoryCommand(id, UserId, request.Name, request.Color, request.DefaultStartTime, request.DefaultEndTime), ct);
         return Ok(result);
     }
 
