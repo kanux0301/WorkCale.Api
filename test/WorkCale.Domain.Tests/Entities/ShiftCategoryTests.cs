@@ -26,7 +26,7 @@ public class ShiftCategoryTests
         var cat = ShiftCategory.Create(Guid.NewGuid(), "Old", "#000000");
         var beforeUpdate = cat.UpdatedAt;
 
-        cat.Update("New Name", "#FFFFFF");
+        cat.Update("New Name", "#FFFFFF", null, null);
 
         cat.Name.Should().Be("New Name");
         cat.Color.Should().Be("#FFFFFF");
@@ -39,7 +39,7 @@ public class ShiftCategoryTests
         var cat = ShiftCategory.Create(Guid.NewGuid(), "Cat", "#AABBCC");
         var created = cat.CreatedAt;
 
-        cat.Update("New", "#112233");
+        cat.Update("New", "#112233", null, null);
 
         cat.CreatedAt.Should().Be(created);
     }

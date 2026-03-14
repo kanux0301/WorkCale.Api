@@ -26,7 +26,7 @@ public class GetSharedCalendarQueryHandler(
             s.Id, s.Date,
             s.StartTime.ToString("HH:mm"), s.EndTime.ToString("HH:mm"),
             s.Location, s.Notes, s.CreatedAt, s.UpdatedAt,
-            new ShiftCategoryDto(s.Category.Id, s.Category.Name, s.Category.Color, s.Category.CreatedAt)));
+            new ShiftCategoryDto(s.Category.Id, s.Category.Name, s.Category.Color, s.Category.DefaultStartTime, s.Category.DefaultEndTime, s.Category.CreatedAt)));
 
         return new SharedCalendarDto(ownerDto, shiftDtos);
     }

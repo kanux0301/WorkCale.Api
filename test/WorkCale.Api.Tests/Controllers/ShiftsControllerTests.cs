@@ -16,7 +16,7 @@ public class ShiftsControllerTests
     private readonly ShiftsController _sut;
     private readonly Guid _userId = Guid.NewGuid();
 
-    private static readonly ShiftCategoryDto SampleCat = new(Guid.NewGuid(), "Day", "#F59E0B", DateTime.UtcNow);
+    private static readonly ShiftCategoryDto SampleCat = new(Guid.NewGuid(), "Day", "#F59E0B", null, null, DateTime.UtcNow);
     private static readonly ShiftDto SampleShift = new(
         Guid.NewGuid(), new DateOnly(2026, 3, 15),
         "09:00", "17:00", null, null,

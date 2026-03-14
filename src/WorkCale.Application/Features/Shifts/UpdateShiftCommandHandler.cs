@@ -33,6 +33,6 @@ public class UpdateShiftCommandHandler(
             shift.Id, shift.Date,
             shift.StartTime.ToString("HH:mm"), shift.EndTime.ToString("HH:mm"),
             shift.Location, shift.Notes, shift.CreatedAt, shift.UpdatedAt,
-            new ShiftCategoryDto(category.Id, category.Name, category.Color, category.CreatedAt));
+            new ShiftCategoryDto(category.Id, category.Name, category.Color, category.DefaultStartTime, category.DefaultEndTime, category.CreatedAt));
     }
 }

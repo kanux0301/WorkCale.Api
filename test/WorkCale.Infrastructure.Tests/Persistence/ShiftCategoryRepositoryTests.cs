@@ -143,7 +143,7 @@ public class ShiftCategoryRepositoryTests
         var cat = ShiftCategory.Create(user.Id, "Old", "#000000");
         await repo.AddAsync(cat);
 
-        cat.Update("New", "#FFFFFF");
+        cat.Update("New", "#FFFFFF", null, null);
         await repo.UpdateAsync(cat);
 
         var updated = await repo.GetByIdAsync(cat.Id);

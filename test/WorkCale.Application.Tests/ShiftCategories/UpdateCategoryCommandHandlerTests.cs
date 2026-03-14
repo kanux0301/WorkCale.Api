@@ -26,7 +26,7 @@ public class UpdateCategoryCommandHandlerTests
         _repo.GetByIdAsync(category.Id, default).Returns(category);
 
         var result = await _handler.Handle(
-            new UpdateCategoryCommand(category.Id, userId, "Morning Shift", "#10B981"), default);
+            new UpdateCategoryCommand(category.Id, userId, "Morning Shift", "#10B981", null, null), default);
 
         result.Name.Should().Be("Morning Shift");
         result.Color.Should().Be("#10B981");
@@ -39,7 +39,7 @@ public class UpdateCategoryCommandHandlerTests
         _repo.GetByIdAsync(Arg.Any<Guid>(), default).Returns((ShiftCategory?)null);
 
         var act = () => _handler.Handle(
-            new UpdateCategoryCommand(Guid.NewGuid(), Guid.NewGuid(), "Name", "#F59E0B"), default);
+            new UpdateCategoryCommand(Guid.NewGuid(), Guid.NewGuid(), "Name", "#F59E0B", null, null), default);
 
         await act.Should().ThrowAsync<KeyNotFoundException>().WithMessage("*not found*");
     }
@@ -52,7 +52,7 @@ public class UpdateCategoryCommandHandlerTests
         _repo.GetByIdAsync(category.Id, default).Returns(category);
 
         var act = () => _handler.Handle(
-            new UpdateCategoryCommand(category.Id, Guid.NewGuid(), "Changed", "#F59E0B"), default);
+            new UpdateCategoryCommand(category.Id, Guid.NewGuid(), "Changed", "#F59E0B", null, null), default);
 
         await act.Should().ThrowAsync<UnauthorizedAccessException>();
     }

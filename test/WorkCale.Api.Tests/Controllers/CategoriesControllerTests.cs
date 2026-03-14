@@ -17,7 +17,7 @@ public class CategoriesControllerTests
     private readonly Guid _userId = Guid.NewGuid();
 
     private static readonly ShiftCategoryDto SampleCategory =
-        new(Guid.NewGuid(), "Day Shift", "#F59E0B", DateTime.UtcNow);
+        new(Guid.NewGuid(), "Day Shift", "#F59E0B", null, null, DateTime.UtcNow);
 
     public CategoriesControllerTests()
     {
@@ -62,7 +62,7 @@ public class CategoriesControllerTests
             .Returns(SampleCategory);
 
         var result = await _sut.Create(
-            new CreateCategoryRequest("Day Shift", "#F59E0B"), CancellationToken.None);
+            new CreateCategoryRequest("Day Shift", "#F59E0B", null, null), CancellationToken.None);
 
         result.Result.Should().BeOfType<CreatedAtActionResult>()
             .Which.Value.Should().BeEquivalentTo(SampleCategory);
@@ -74,7 +74,7 @@ public class CategoriesControllerTests
         _sut.ModelState.AddModelError("Name", "Name is required.");
 
         var result = await _sut.Create(
-            new CreateCategoryRequest("", "#F59E0B"), CancellationToken.None);
+            new CreateCategoryRequest("", "#F59E0B", null, null), CancellationToken.None);
 
         result.Result.Should().BeOfType<BadRequestObjectResult>();
         await _mediator.DidNotReceive().Send(Arg.Any<CreateCategoryCommand>(), Arg.Any<CancellationToken>());
@@ -86,7 +86,7 @@ public class CategoriesControllerTests
         _sut.ModelState.AddModelError("Color", "Color is required.");
 
         var result = await _sut.Create(
-            new CreateCategoryRequest("Day Shift", ""), CancellationToken.None);
+            new CreateCategoryRequest("Day Shift", "", null, null), CancellationToken.None);
 
         result.Result.Should().BeOfType<BadRequestObjectResult>();
     }
@@ -97,7 +97,7 @@ public class CategoriesControllerTests
         _mediator.Send(Arg.Any<CreateCategoryCommand>(), Arg.Any<CancellationToken>())
             .Returns(SampleCategory);
 
-        await _sut.Create(new CreateCategoryRequest("Day", "#AABBCC"), CancellationToken.None);
+        await _sut.Create(new CreateCategoryRequest("Day", "#AABBCC", null, null), CancellationToken.None);
 
         await _mediator.Received(1).Send(
             Arg.Is<CreateCategoryCommand>(c => c.UserId == _userId && c.Name == "Day"),
@@ -114,7 +114,7 @@ public class CategoriesControllerTests
             .Returns(SampleCategory);
 
         var result = await _sut.Update(id,
-            new UpdateCategoryRequest("Night Shift", "#6366F1"), CancellationToken.None);
+            new UpdateCategoryRequest("Night Shift", "#6366F1", null, null), CancellationToken.None);
 
         result.Result.Should().BeOfType<OkObjectResult>();
     }
@@ -125,7 +125,7 @@ public class CategoriesControllerTests
         _sut.ModelState.AddModelError("Name", "Name is required.");
 
         var result = await _sut.Update(Guid.NewGuid(),
-            new UpdateCategoryRequest("", "#6366F1"), CancellationToken.None);
+            new UpdateCategoryRequest("", "#6366F1", null, null), CancellationToken.None);
 
         result.Result.Should().BeOfType<BadRequestObjectResult>();
     }
@@ -136,7 +136,7 @@ public class CategoriesControllerTests
         _sut.ModelState.AddModelError("Color", "Color is required.");
 
         var result = await _sut.Update(Guid.NewGuid(),
-            new UpdateCategoryRequest("Night", ""), CancellationToken.None);
+            new UpdateCategoryRequest("Night", "", null, null), CancellationToken.None);
 
         result.Result.Should().BeOfType<BadRequestObjectResult>();
     }
@@ -148,7 +148,7 @@ public class CategoriesControllerTests
         _mediator.Send(Arg.Any<UpdateCategoryCommand>(), Arg.Any<CancellationToken>())
             .Returns(SampleCategory);
 
-        await _sut.Update(id, new UpdateCategoryRequest("New", "#AABBCC"), CancellationToken.None);
+        await _sut.Update(id, new UpdateCategoryRequest("New", "#AABBCC", null, null), CancellationToken.None);
 
         await _mediator.Received(1).Send(
             Arg.Is<UpdateCategoryCommand>(c => c.CategoryId == id && c.UserId == _userId),

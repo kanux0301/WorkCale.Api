@@ -47,7 +47,7 @@ public class CategoriesEndpointTests(TestWebAppFactory factory) : IClassFixture<
         var (client, _, _) = await SetupAsync();
 
         var response = await client.PostAsJsonAsync("/api/categories",
-            new CreateCategoryRequest("Evening Shift", "#10B981"));
+            new CreateCategoryRequest("Evening Shift", "#10B981", null, null));
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var cat = await response.Content.ReadFromJsonAsync<ShiftCategoryDto>();
@@ -86,7 +86,7 @@ public class CategoriesEndpointTests(TestWebAppFactory factory) : IClassFixture<
         var catId = cats.First().Id;
 
         var response = await client.PutAsJsonAsync($"/api/categories/{catId}",
-            new UpdateCategoryRequest("Updated Name", "#ABCDEF"));
+            new UpdateCategoryRequest("Updated Name", "#ABCDEF", null, null));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var updated = await response.Content.ReadFromJsonAsync<ShiftCategoryDto>();
@@ -99,7 +99,7 @@ public class CategoriesEndpointTests(TestWebAppFactory factory) : IClassFixture<
         var (client, _, _) = await SetupAsync();
 
         var response = await client.PutAsJsonAsync($"/api/categories/{Guid.NewGuid()}",
-            new UpdateCategoryRequest("Name", "#123456"));
+            new UpdateCategoryRequest("Name", "#123456", null, null));
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -111,7 +111,7 @@ public class CategoriesEndpointTests(TestWebAppFactory factory) : IClassFixture<
         var (clientB, _, _) = await SetupAsync();
 
         var response = await clientB.PutAsJsonAsync($"/api/categories/{catsA.First().Id}",
-            new UpdateCategoryRequest("Stolen", "#000000"));
+            new UpdateCategoryRequest("Stolen", "#000000", null, null));
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }

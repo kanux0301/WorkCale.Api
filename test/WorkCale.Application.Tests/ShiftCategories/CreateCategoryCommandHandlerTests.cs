@@ -22,7 +22,7 @@ public class CreateCategoryCommandHandlerTests
     public async Task Handle_WithValidData_ReturnsDto()
     {
         var userId = Guid.NewGuid();
-        var command = new CreateCategoryCommand(userId, "Evening Shift", "#EC4899");
+        var command = new CreateCategoryCommand(userId, "Evening Shift", "#EC4899", null, null);
 
         var result = await _handler.Handle(command, default);
 
@@ -35,7 +35,7 @@ public class CreateCategoryCommandHandlerTests
     public async Task Handle_WithValidData_PersistsCategory()
     {
         var userId = Guid.NewGuid();
-        var command = new CreateCategoryCommand(userId, "Overnight", "#8B5CF6");
+        var command = new CreateCategoryCommand(userId, "Overnight", "#8B5CF6", null, null);
 
         await _handler.Handle(command, default);
 
