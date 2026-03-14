@@ -40,16 +40,12 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
-    ?? ["http://localhost:8081", "http://localhost:3000"];
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowMobile", policy =>
-        policy.WithOrigins(allowedOrigins)
-              .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-              .WithHeaders("Authorization", "Content-Type", "Accept")
-              .AllowCredentials());
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader());
 });
 
 builder.Services.AddControllers()
