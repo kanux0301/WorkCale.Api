@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_ID: REPLACE_WITH_PROJECT_ID
-  PROJECT_NUMBER: REPLACE_WITH_PROJECT_NUMBER
+  PROJECT_ID: workcale-api
+  PROJECT_NUMBER: "417063688228"
   REGION: us-central1
   REPO: workcale
   SERVICE: workcale-api
