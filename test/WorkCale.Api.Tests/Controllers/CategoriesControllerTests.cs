@@ -17,7 +17,7 @@ public class CategoriesControllerTests
     private readonly Guid _userId = Guid.NewGuid();
 
     private static readonly ShiftCategoryDto SampleCategory =
-        new(Guid.NewGuid(), "Day Shift", "#F59E0B", null, null, DateTime.UtcNow);
+        new(Guid.NewGuid(), "Day Shift", "#F59E0B", null, null, null, DateTime.UtcNow);
 
     public CategoriesControllerTests()
     {

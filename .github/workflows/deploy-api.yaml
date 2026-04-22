@@ -1,0 +1,61 @@
+name: Deploy API to Cloud Run
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: REPLACE_WITH_PROJECT_ID
+  PROJECT_NUMBER: REPLACE_WITH_PROJECT_NUMBER
+  REGION: us-central1
+  REPO: workcale
+  SERVICE: workcale-api
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github
+          service_account: workcale-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker auth for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build + push image
+        run: |
+          IMG_SHA=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/api:${{ github.sha }}
+          IMG_LATEST=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/api:latest
+          docker build -t "$IMG_SHA" -t "$IMG_LATEST" .
+          docker push "$IMG_SHA"
+          docker push "$IMG_LATEST"
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/api:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --min-instances 0 \
+            --max-instances 3 \
+            --memory 512Mi \
+            --cpu 1 \
+            --timeout 60 \
+            --port 8080 \
+            --set-env-vars "ASPNETCORE_ENVIRONMENT=Production,Jwt__Issuer=WorkCale.Api,Jwt__Audience=WorkCale.Client,Jwt__ExpirationMinutes=60" \
+            --set-secrets "ConnectionStrings__Database=workcale-db-connstr:latest,Jwt__Key=workcale-jwt-key:latest"
+
+      - name: Show service URL
+        run: gcloud run services describe ${{ env.SERVICE }} --region ${{ env.REGION }} --format='value(status.url)'

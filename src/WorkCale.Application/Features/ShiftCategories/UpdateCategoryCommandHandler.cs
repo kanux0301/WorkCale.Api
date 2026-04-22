@@ -18,7 +18,7 @@ public class UpdateCategoryCommandHandler(IShiftCategoryRepository repository, I
         var oldStart = category.DefaultStartTime;
         var oldEnd = category.DefaultEndTime;
 
-        category.Update(request.Name, request.Color, request.DefaultStartTime, request.DefaultEndTime);
+        category.Update(request.Name, request.Color, request.DefaultStartTime, request.DefaultEndTime, request.Icon);
         await repository.UpdateAsync(category, ct);
 
         if (category.DefaultStartTime is not null && category.DefaultEndTime is not null &&
@@ -29,6 +29,6 @@ public class UpdateCategoryCommandHandler(IShiftCategoryRepository repository, I
             await shiftRepository.UpdateTimesByCategoryAsync(category.Id, startTime, endTime, ct);
         }
 
-        return new ShiftCategoryDto(category.Id, category.Name, category.Color, category.DefaultStartTime, category.DefaultEndTime, category.CreatedAt);
+        return new ShiftCategoryDto(category.Id, category.Name, category.Color, category.DefaultStartTime, category.DefaultEndTime, category.Icon, category.CreatedAt);
     }
 }

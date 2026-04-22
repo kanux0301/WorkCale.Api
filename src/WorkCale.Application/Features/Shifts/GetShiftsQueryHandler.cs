@@ -17,8 +17,9 @@ public class GetShiftsQueryHandler(IShiftRepository repository)
             s.EndTime.ToString("HH:mm"),
             s.Location,
             s.Notes,
+            s.UnpaidBreakMinutes,
             s.CreatedAt,
             s.UpdatedAt,
-            new ShiftCategoryDto(s.Category.Id, s.Category.Name, s.Category.Color, s.Category.DefaultStartTime, s.Category.DefaultEndTime, s.Category.CreatedAt)));
+            new ShiftCategoryDto(s.Category.Id, s.Category.Name, s.Category.Color, s.Category.DefaultStartTime, s.Category.DefaultEndTime, s.Category.Icon, s.Category.CreatedAt)));
     }
 }

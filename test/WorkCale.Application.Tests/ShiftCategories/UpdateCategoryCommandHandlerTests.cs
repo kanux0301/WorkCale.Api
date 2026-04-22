@@ -10,11 +10,12 @@ namespace WorkCale.Application.Tests.ShiftCategories;
 public class UpdateCategoryCommandHandlerTests
 {
     private readonly IShiftCategoryRepository _repo = Substitute.For<IShiftCategoryRepository>();
+    private readonly IShiftRepository _shiftRepo = Substitute.For<IShiftRepository>();
     private readonly UpdateCategoryCommandHandler _handler;
 
     public UpdateCategoryCommandHandlerTests()
     {
-        _handler = new UpdateCategoryCommandHandler(_repo);
+        _handler = new UpdateCategoryCommandHandler(_repo, _shiftRepo);
         _repo.UpdateAsync(Arg.Any<ShiftCategory>(), default).Returns(Task.CompletedTask);
     }
 

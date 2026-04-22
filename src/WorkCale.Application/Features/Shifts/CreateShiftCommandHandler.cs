@@ -21,13 +21,14 @@ public class CreateShiftCommandHandler(
         var start = TimeOnly.ParseExact(request.StartTime, "HH:mm");
         var end = TimeOnly.ParseExact(request.EndTime, "HH:mm");
 
-        var shift = Shift.Create(request.UserId, request.CategoryId, request.Date, start, end, request.Location, request.Notes);
+        var shift = Shift.Create(request.UserId, request.CategoryId, request.Date, start, end, request.Location, request.Notes, request.UnpaidBreakMinutes);
         await shiftRepository.AddAsync(shift, ct);
 
         return new ShiftDto(
             shift.Id, shift.Date,
             shift.StartTime.ToString("HH:mm"), shift.EndTime.ToString("HH:mm"),
-            shift.Location, shift.Notes, shift.CreatedAt, shift.UpdatedAt,
-            new ShiftCategoryDto(category.Id, category.Name, category.Color, category.DefaultStartTime, category.DefaultEndTime, category.CreatedAt));
+            shift.Location, shift.Notes, shift.UnpaidBreakMinutes,
+            shift.CreatedAt, shift.UpdatedAt,
+            new ShiftCategoryDto(category.Id, category.Name, category.Color, category.DefaultStartTime, category.DefaultEndTime, category.Icon, category.CreatedAt));
     }
 }

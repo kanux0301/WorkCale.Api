@@ -10,4 +10,5 @@ public record CreateShiftCommand(
     string EndTime,
     Guid CategoryId,
     string? Location,
-    string? Notes) : IRequest<ShiftDto>;
+    string? Notes,
+    int UnpaidBreakMinutes = 0) : IRequest<ShiftDto>;

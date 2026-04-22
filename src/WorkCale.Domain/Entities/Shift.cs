@@ -10,6 +10,8 @@ public class Shift
     public TimeOnly EndTime { get; private set; }
     public string? Location { get; private set; }
     public string? Notes { get; private set; }
+    /// <summary>Minutes of unpaid break subtracted from the shift's paid duration.</summary>
+    public int UnpaidBreakMinutes { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
@@ -19,7 +21,8 @@ public class Shift
     private Shift() { }
 
     public static Shift Create(Guid userId, Guid categoryId, DateOnly date,
-        TimeOnly startTime, TimeOnly endTime, string? location, string? notes)
+        TimeOnly startTime, TimeOnly endTime, string? location, string? notes,
+        int unpaidBreakMinutes = 0)
     {
         return new Shift
         {
@@ -31,13 +34,15 @@ public class Shift
             EndTime = endTime,
             Location = location,
             Notes = notes,
+            UnpaidBreakMinutes = Math.Max(0, unpaidBreakMinutes),
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
     }
 
     public void Update(Guid categoryId, DateOnly date, TimeOnly startTime,
-        TimeOnly endTime, string? location, string? notes)
+        TimeOnly endTime, string? location, string? notes,
+        int unpaidBreakMinutes = 0)
     {
         CategoryId = categoryId;
         Date = date;
@@ -45,6 +50,7 @@ public class Shift
         EndTime = endTime;
         Location = location;
         Notes = notes;
+        UnpaidBreakMinutes = Math.Max(0, unpaidBreakMinutes);
         UpdatedAt = DateTime.UtcNow;
     }
 

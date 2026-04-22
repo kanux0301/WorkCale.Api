@@ -32,6 +32,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(c => c.Color).IsRequired().HasMaxLength(7);
             e.Property(c => c.DefaultStartTime).HasMaxLength(5);
             e.Property(c => c.DefaultEndTime).HasMaxLength(5);
+            e.Property(c => c.Icon).HasMaxLength(50);
             e.HasIndex(c => c.UserId);
             e.HasOne(c => c.User)
                 .WithMany(u => u.ShiftCategories)
@@ -42,6 +43,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Shift>(e =>
         {
             e.HasKey(s => s.Id);
+            e.Property(s => s.UnpaidBreakMinutes).HasDefaultValue(0);
             e.HasIndex(s => new { s.UserId, s.Date });
             e.HasOne(s => s.User)
                 .WithMany(u => u.Shifts)

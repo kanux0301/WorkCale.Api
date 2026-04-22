@@ -28,7 +28,7 @@ public class ShiftsController(IMediator mediator) : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await mediator.Send(new CreateShiftCommand(
             UserId, request.Date, request.StartTime, request.EndTime,
-            request.CategoryId, request.Location, request.Notes), ct);
+            request.CategoryId, request.Location, request.Notes, request.UnpaidBreakMinutes ?? 0), ct);
         return CreatedAtAction(nameof(GetByMonth), result);
     }
 
@@ -38,7 +38,7 @@ public class ShiftsController(IMediator mediator) : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var result = await mediator.Send(new UpdateShiftCommand(
             id, UserId, request.Date, request.StartTime, request.EndTime,
-            request.CategoryId, request.Location, request.Notes), ct);
+            request.CategoryId, request.Location, request.Notes, request.UnpaidBreakMinutes ?? 0), ct);
         return Ok(result);
     }
 

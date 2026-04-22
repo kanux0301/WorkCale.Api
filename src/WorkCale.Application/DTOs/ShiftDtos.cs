@@ -9,6 +9,7 @@ public record ShiftDto(
     string EndTime,
     string? Location,
     string? Notes,
+    int UnpaidBreakMinutes,
     DateTime CreatedAt,
     DateTime UpdatedAt,
     ShiftCategoryDto Category);
@@ -19,7 +20,8 @@ public record CreateShiftRequest(
     [Required] string EndTime,
     [Required] Guid CategoryId,
     string? Location,
-    string? Notes);
+    string? Notes,
+    int? UnpaidBreakMinutes = 0);
 
 public record UpdateShiftRequest(
     DateOnly Date,
@@ -27,4 +29,5 @@ public record UpdateShiftRequest(
     [Required] string EndTime,
     [Required] Guid CategoryId,
     string? Location,
-    string? Notes);
+    string? Notes,
+    int? UnpaidBreakMinutes = 0);

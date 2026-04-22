@@ -12,6 +12,10 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Cloud Run injects PORT (typically 8080). Honour it; fall back to 8080 locally.
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://+:{port}");
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -76,6 +80,10 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("AllowMobile");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Liveness probe for Cloud Run + Uptime Robot keep-alive.
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+
 app.MapControllers();
 
 app.Run();

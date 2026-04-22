@@ -8,6 +8,8 @@ public class ShiftCategory
     public string Color { get; private set; } = default!;
     public string? DefaultStartTime { get; private set; }
     public string? DefaultEndTime { get; private set; }
+    /// <summary>Optional Ionicon name (mobile) rendered beside the color dot.</summary>
+    public string? Icon { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
@@ -17,7 +19,7 @@ public class ShiftCategory
     private ShiftCategory() { }
 
     public static ShiftCategory Create(Guid userId, string name, string color,
-        string? defaultStartTime = null, string? defaultEndTime = null)
+        string? defaultStartTime = null, string? defaultEndTime = null, string? icon = null)
     {
         return new ShiftCategory
         {
@@ -27,17 +29,19 @@ public class ShiftCategory
             Color = color,
             DefaultStartTime = defaultStartTime,
             DefaultEndTime = defaultEndTime,
+            Icon = icon,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
     }
 
-    public void Update(string name, string color, string? defaultStartTime, string? defaultEndTime)
+    public void Update(string name, string color, string? defaultStartTime, string? defaultEndTime, string? icon = null)
     {
         Name = name;
         Color = color;
         DefaultStartTime = defaultStartTime;
         DefaultEndTime = defaultEndTime;
+        Icon = icon;
         UpdatedAt = DateTime.UtcNow;
     }
 }
