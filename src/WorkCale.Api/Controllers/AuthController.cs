@@ -59,4 +59,16 @@ public class AuthController(IMediator mediator) : ControllerBase
         var result = await mediator.Send(new GetCurrentUserQuery(userId), ct);
         return Ok(result);
     }
+
+    [Authorize]
+    [HttpPatch("me")]
+    public async Task<ActionResult<UserDto>> UpdateMe([FromBody] UpdateProfileRequest request, CancellationToken ct)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await mediator.Send(
+            new UpdateProfileCommand(userId, request.DisplayName, request.AvatarColor, request.AvatarIcon),
+            ct);
+        return Ok(result);
+    }
 }

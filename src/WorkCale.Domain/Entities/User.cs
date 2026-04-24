@@ -8,6 +8,10 @@ public class User
     public string? PasswordHash { get; private set; }
     public string? GoogleId { get; private set; }
     public string? AvatarUrl { get; private set; }
+    /// <summary>User's chosen accent color (7-char hex, e.g. "#4C6FA3"). Null = use brand default.</summary>
+    public string? AvatarColor { get; private set; }
+    /// <summary>Ionicon name (e.g. "briefcase-outline") for the personal avatar.</summary>
+    public string? AvatarIcon { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
@@ -53,9 +57,14 @@ public class User
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdateProfile(string displayName)
+    public void UpdateProfile(string displayName, string? avatarColor = null, string? avatarIcon = null)
     {
         DisplayName = displayName;
+        // Null = keep current (partial updates from DTO); empty string = explicit reset.
+        if (avatarColor != null)
+            AvatarColor = string.IsNullOrWhiteSpace(avatarColor) ? null : avatarColor;
+        if (avatarIcon != null)
+            AvatarIcon = string.IsNullOrWhiteSpace(avatarIcon) ? null : avatarIcon;
         UpdatedAt = DateTime.UtcNow;
     }
 
