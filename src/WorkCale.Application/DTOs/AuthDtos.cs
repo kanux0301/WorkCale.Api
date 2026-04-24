@@ -6,7 +6,9 @@ public record UserDto(
     Guid Id,
     string Email,
     string DisplayName,
-    string? AvatarUrl);
+    string? AvatarUrl,
+    string? AvatarColor = null,
+    string? AvatarIcon = null);
 
 public record AuthResult(
     string AccessToken,
@@ -32,7 +34,9 @@ public record LogoutRequest(
     [Required] string RefreshToken);
 
 public record UpdateProfileRequest(
-    [Required, MaxLength(100)] string DisplayName);
+    [Required, MaxLength(100)] string DisplayName,
+    [MaxLength(7)] string? AvatarColor = null,
+    [MaxLength(60)] string? AvatarIcon = null);
 
 public record ChangePasswordRequest(
     [Required] string CurrentPassword,

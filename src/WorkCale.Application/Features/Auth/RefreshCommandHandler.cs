@@ -29,7 +29,7 @@ public class RefreshCommandHandler(
         await refreshTokenRepository.AddAsync(newRefreshToken, ct);
 
         var accessToken = jwtService.GenerateAccessToken(user);
-        var userDto = new UserDto(user.Id, user.Email, user.DisplayName, user.AvatarUrl);
+        var userDto = new UserDto(user.Id, user.Email, user.DisplayName, user.AvatarUrl, user.AvatarColor, user.AvatarIcon);
         return new AuthResult(accessToken, newRefreshTokenValue, userDto);
     }
 }

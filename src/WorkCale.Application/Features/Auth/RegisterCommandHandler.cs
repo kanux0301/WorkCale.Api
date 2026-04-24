@@ -37,7 +37,7 @@ public class RegisterCommandHandler(
         var refreshToken = RefreshToken.Create(user.Id, refreshTokenValue);
         await refreshTokenRepository.AddAsync(refreshToken, ct);
 
-        var userDto = new UserDto(user.Id, user.Email, user.DisplayName, user.AvatarUrl);
+        var userDto = new UserDto(user.Id, user.Email, user.DisplayName, user.AvatarUrl, user.AvatarColor, user.AvatarIcon);
         return new AuthResult(accessToken, refreshTokenValue, userDto);
     }
 }

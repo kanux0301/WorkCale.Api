@@ -12,6 +12,6 @@ public class GetCurrentUserQueryHandler(IUserRepository userRepository)
         var user = await userRepository.GetByIdAsync(request.UserId, ct)
                    ?? throw new KeyNotFoundException("User not found.");
 
-        return new UserDto(user.Id, user.Email, user.DisplayName, user.AvatarUrl);
+        return new UserDto(user.Id, user.Email, user.DisplayName, user.AvatarUrl, user.AvatarColor, user.AvatarIcon);
     }
 }
