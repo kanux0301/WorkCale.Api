@@ -1,5 +1,6 @@
-using WorkCale.Application.Services;
 using MediatR;
+using WorkCale.Application.Common;
+using WorkCale.Application.Services;
 
 namespace WorkCale.Application.Features.Shifts;
 
@@ -8,11 +9,9 @@ public class DeleteShiftCommandHandler(IShiftRepository repository)
 {
     public async Task Handle(DeleteShiftCommand request, CancellationToken ct)
     {
-        var shift = await repository.GetByIdAsync(request.ShiftId, ct)
-                    ?? throw new KeyNotFoundException("Shift not found.");
-
-        if (shift.UserId != request.UserId)
-            throw new UnauthorizedAccessException("You do not own this shift.");
+        var shift = OwnershipGuards.RequireOwned(
+            await repository.GetByIdAsync(request.ShiftId, ct),
+            request.UserId, s => s.UserId, "Shift");
 
         await repository.DeleteAsync(shift, ct);
     }

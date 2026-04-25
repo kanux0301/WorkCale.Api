@@ -1,7 +1,9 @@
+using MediatR;
+using WorkCale.Application.Common;
 using WorkCale.Application.DTOs;
+using WorkCale.Application.Mappings;
 using WorkCale.Application.Services;
 using WorkCale.Domain.Entities;
-using MediatR;
 
 namespace WorkCale.Application.Features.Shifts;
 
@@ -12,23 +14,17 @@ public class CreateShiftCommandHandler(
 {
     public async Task<ShiftDto> Handle(CreateShiftCommand request, CancellationToken ct)
     {
-        var category = await categoryRepository.GetByIdAsync(request.CategoryId, ct)
-                       ?? throw new KeyNotFoundException("Category not found.");
+        var category = OwnershipGuards.RequireOwned(
+            await categoryRepository.GetByIdAsync(request.CategoryId, ct),
+            request.UserId, c => c.UserId, "Category");
 
-        if (category.UserId != request.UserId)
-            throw new UnauthorizedAccessException("You do not own this category.");
+        var shift = Shift.Create(
+            request.UserId, request.CategoryId, request.Date,
+            TimeFormats.ParseHHmm(request.StartTime), TimeFormats.ParseHHmm(request.EndTime),
+            request.Location, request.Notes, request.UnpaidBreakMinutes);
 
-        var start = TimeOnly.ParseExact(request.StartTime, "HH:mm");
-        var end = TimeOnly.ParseExact(request.EndTime, "HH:mm");
-
-        var shift = Shift.Create(request.UserId, request.CategoryId, request.Date, start, end, request.Location, request.Notes, request.UnpaidBreakMinutes);
         await shiftRepository.AddAsync(shift, ct);
 
-        return new ShiftDto(
-            shift.Id, shift.Date,
-            shift.StartTime.ToString("HH:mm"), shift.EndTime.ToString("HH:mm"),
-            shift.Location, shift.Notes, shift.UnpaidBreakMinutes,
-            shift.CreatedAt, shift.UpdatedAt,
-            new ShiftCategoryDto(category.Id, category.Name, category.Color, category.DefaultStartTime, category.DefaultEndTime, category.Icon, category.CreatedAt));
+        return shift.ToDto(category);
     }
 }

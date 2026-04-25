@@ -53,6 +53,46 @@ namespace WorkCale.Infrastructure.Migrations
                     b.ToTable("CalendarShares");
                 });
 
+            modelBuilder.Entity("WorkCale.Domain.Entities.InviteCode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTime?>("ConsumedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("ConsumedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("IssuedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("IssuedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("IssuedByUserId");
+
+                    b.ToTable("InviteCodes");
+                });
+
             modelBuilder.Entity("WorkCale.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -207,6 +247,9 @@ namespace WorkCale.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("PasswordHash")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -243,6 +286,17 @@ namespace WorkCale.Infrastructure.Migrations
                     b.Navigation("OwnerUser");
 
                     b.Navigation("ViewerUser");
+                });
+
+            modelBuilder.Entity("WorkCale.Domain.Entities.InviteCode", b =>
+                {
+                    b.HasOne("WorkCale.Domain.Entities.User", "IssuedByUser")
+                        .WithMany()
+                        .HasForeignKey("IssuedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("IssuedByUser");
                 });
 
             modelBuilder.Entity("WorkCale.Domain.Entities.RefreshToken", b =>

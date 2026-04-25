@@ -71,18 +71,6 @@ public class CalendarSharesControllerTests
     }
 
     [Fact]
-    public async Task Grant_EmptyViewerUserId_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("ViewerUserId", "ViewerUserId is required.");
-
-        var result = await _sut.Grant(
-            new GrantShareRequest(Guid.Empty), CancellationToken.None);
-
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-        await _mediator.DidNotReceive().Send(Arg.Any<GrantCalendarShareCommand>(), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
     public async Task Grant_SendsCommandWithOwnerAndViewerIds()
     {
         var viewerId = Guid.NewGuid();

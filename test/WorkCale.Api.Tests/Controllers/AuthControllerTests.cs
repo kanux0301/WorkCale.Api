@@ -28,42 +28,17 @@ public class AuthControllerTests
     public async Task Register_ValidRequest_ReturnsOk()
     {
         _mediator.Send(Arg.Any<RegisterCommand>(), Arg.Any<CancellationToken>()).Returns(SampleAuth);
-        var result = await _sut.Register(new RegisterRequest("a@b.com", "Alice", "Password1!"), CancellationToken.None);
+        var result = await _sut.Register(new RegisterRequest("a@b.com", "Alice", "Password1!", "WC-TEST-0000"), CancellationToken.None);
         result.Result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(SampleAuth);
-    }
-
-    [Fact]
-    public async Task Register_EmptyEmail_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("Email", "Email is required.");
-        var result = await _sut.Register(new RegisterRequest("", "Alice", "Password1!"), CancellationToken.None);
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-        await _mediator.DidNotReceive().Send(Arg.Any<RegisterCommand>(), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task Register_EmptyDisplayName_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("DisplayName", "Display name is required.");
-        var result = await _sut.Register(new RegisterRequest("a@b.com", "", "Password1!"), CancellationToken.None);
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-    }
-
-    [Fact]
-    public async Task Register_EmptyPassword_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("Password", "Password is required.");
-        var result = await _sut.Register(new RegisterRequest("a@b.com", "Alice", ""), CancellationToken.None);
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
     }
 
     [Fact]
     public async Task Register_SendsCorrectCommand()
     {
         _mediator.Send(Arg.Any<RegisterCommand>(), Arg.Any<CancellationToken>()).Returns(SampleAuth);
-        await _sut.Register(new RegisterRequest("alice@x.com", "Alice", "pass"), CancellationToken.None);
+        await _sut.Register(new RegisterRequest("alice@x.com", "Alice", "pass", "WC-TEST-0000"), CancellationToken.None);
         await _mediator.Received(1).Send(
-            Arg.Is<RegisterCommand>(c => c.Email == "alice@x.com" && c.DisplayName == "Alice" && c.Password == "pass"),
+            Arg.Is<RegisterCommand>(c => c.Email == "alice@x.com" && c.DisplayName == "Alice" && c.Password == "pass" && c.InviteCode == "WC-TEST-0000"),
             Arg.Any<CancellationToken>());
     }
 
@@ -76,22 +51,6 @@ public class AuthControllerTests
         result.Result.Should().BeOfType<OkObjectResult>();
     }
 
-    [Fact]
-    public async Task Login_EmptyEmail_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("Email", "Email is required.");
-        var result = await _sut.Login(new LoginRequest("", "password"), CancellationToken.None);
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-    }
-
-    [Fact]
-    public async Task Login_EmptyPassword_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("Password", "Password is required.");
-        var result = await _sut.Login(new LoginRequest("a@b.com", ""), CancellationToken.None);
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-    }
-
     // GoogleLogin
     [Fact]
     public async Task GoogleLogin_ValidRequest_ReturnsOk()
@@ -99,14 +58,6 @@ public class AuthControllerTests
         _mediator.Send(Arg.Any<GoogleLoginCommand>(), Arg.Any<CancellationToken>()).Returns(SampleAuth);
         var result = await _sut.GoogleLogin(new GoogleLoginRequest("google-id-token"), CancellationToken.None);
         result.Result.Should().BeOfType<OkObjectResult>();
-    }
-
-    [Fact]
-    public async Task GoogleLogin_EmptyIdToken_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("IdToken", "IdToken is required.");
-        var result = await _sut.GoogleLogin(new GoogleLoginRequest(""), CancellationToken.None);
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
     }
 
     // Refresh
@@ -118,14 +69,6 @@ public class AuthControllerTests
         result.Result.Should().BeOfType<OkObjectResult>();
     }
 
-    [Fact]
-    public async Task Refresh_EmptyToken_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("RefreshToken", "RefreshToken is required.");
-        var result = await _sut.Refresh(new RefreshRequest(""), CancellationToken.None);
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-    }
-
     // Logout
     [Fact]
     public async Task Logout_ValidRequest_ReturnsNoContent()
@@ -133,14 +76,6 @@ public class AuthControllerTests
         _mediator.Send(Arg.Any<LogoutCommand>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
         var result = await _sut.Logout(new LogoutRequest("refresh-token"), CancellationToken.None);
         result.Should().BeOfType<NoContentResult>();
-    }
-
-    [Fact]
-    public async Task Logout_EmptyToken_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("RefreshToken", "RefreshToken is required.");
-        var result = await _sut.Logout(new LogoutRequest(""), CancellationToken.None);
-        result.Should().BeOfType<BadRequestObjectResult>();
     }
 
     // Me

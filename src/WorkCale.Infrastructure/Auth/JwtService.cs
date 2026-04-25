@@ -17,12 +17,16 @@ public class JwtService(IConfiguration configuration) : IJwtService
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var expirationMinutes = int.Parse(configuration["Jwt:ExpirationMinutes"] ?? "60");
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim("displayName", user.DisplayName)
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Email, user.Email),
+            new("displayName", user.DisplayName)
         };
+        // Admin flag rides in the token so [Authorize(Roles="admin")] works without re-hitting the DB.
+        // New tokens after an IsAdmin flip require a refresh — acceptable for an internal tool.
+        if (user.IsAdmin)
+            claims.Add(new Claim(ClaimTypes.Role, "admin"));
 
         var token = new JwtSecurityToken(
             issuer: configuration["Jwt:Issuer"],

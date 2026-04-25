@@ -13,7 +13,7 @@ public class UsersEndpointTests(TestWebAppFactory factory) : IClassFixture<TestW
     public async Task Search_WithQueryTooShort_ReturnsEmptyList()
     {
         var client = factory.CreateClient();
-        var auth = await AuthHelper.RegisterAndLoginAsync(client);
+        var auth = await AuthHelper.RegisterAndLoginAsync(client, factory);
         client.SetBearerToken(auth.AccessToken);
 
         var response = await client.GetAsync("/api/users/search?q=a");
@@ -27,10 +27,10 @@ public class UsersEndpointTests(TestWebAppFactory factory) : IClassFixture<TestW
     {
         var uid = Guid.NewGuid().ToString("N")[..8];
         var targetClient = factory.CreateClient();
-        await AuthHelper.RegisterAndLoginAsync(targetClient, $"find-{uid}@example.com", $"Find{uid}");
+        await AuthHelper.RegisterAndLoginAsync(targetClient, factory, $"find-{uid}@example.com", $"Find{uid}");
 
         var client = factory.CreateClient();
-        var auth = await AuthHelper.RegisterAndLoginAsync(client);
+        var auth = await AuthHelper.RegisterAndLoginAsync(client, factory);
         client.SetBearerToken(auth.AccessToken);
 
         var users = await client.GetFromJsonAsync<List<UserDto>>($"/api/users/search?q=Find{uid}");
@@ -43,7 +43,7 @@ public class UsersEndpointTests(TestWebAppFactory factory) : IClassFixture<TestW
     {
         var uid = Guid.NewGuid().ToString("N")[..8];
         var client = factory.CreateClient();
-        var auth = await AuthHelper.RegisterAndLoginAsync(client, $"self-{uid}@example.com", $"Self{uid}");
+        var auth = await AuthHelper.RegisterAndLoginAsync(client, factory, $"self-{uid}@example.com", $"Self{uid}");
         client.SetBearerToken(auth.AccessToken);
 
         var users = await client.GetFromJsonAsync<List<UserDto>>($"/api/users/search?q=Self{uid}");
@@ -55,7 +55,7 @@ public class UsersEndpointTests(TestWebAppFactory factory) : IClassFixture<TestW
     public async Task Search_WithNoMatches_ReturnsEmptyList()
     {
         var client = factory.CreateClient();
-        var auth = await AuthHelper.RegisterAndLoginAsync(client);
+        var auth = await AuthHelper.RegisterAndLoginAsync(client, factory);
         client.SetBearerToken(auth.AccessToken);
 
         var users = await client.GetFromJsonAsync<List<UserDto>>(

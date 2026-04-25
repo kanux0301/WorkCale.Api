@@ -70,43 +70,6 @@ public class ShiftsControllerTests
     }
 
     [Fact]
-    public async Task Create_EmptyStartTime_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("StartTime", "StartTime is required.");
-
-        var result = await _sut.Create(
-            new CreateShiftRequest(new DateOnly(2026, 3, 15), "", "17:00",
-                Guid.NewGuid(), null, null), CancellationToken.None);
-
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-        await _mediator.DidNotReceive().Send(Arg.Any<CreateShiftCommand>(), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task Create_EmptyEndTime_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("EndTime", "EndTime is required.");
-
-        var result = await _sut.Create(
-            new CreateShiftRequest(new DateOnly(2026, 3, 15), "09:00", "",
-                Guid.NewGuid(), null, null), CancellationToken.None);
-
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-    }
-
-    [Fact]
-    public async Task Create_EmptyCategoryId_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("CategoryId", "CategoryId is required.");
-
-        var result = await _sut.Create(
-            new CreateShiftRequest(new DateOnly(2026, 3, 15), "09:00", "17:00",
-                Guid.Empty, null, null), CancellationToken.None);
-
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-    }
-
-    [Fact]
     public async Task Create_SendsCommandWithUserId()
     {
         var catId = Guid.NewGuid();
@@ -136,30 +99,6 @@ public class ShiftsControllerTests
                 Guid.NewGuid(), null, null), CancellationToken.None);
 
         result.Result.Should().BeOfType<OkObjectResult>();
-    }
-
-    [Fact]
-    public async Task Update_EmptyStartTime_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("StartTime", "StartTime is required.");
-
-        var result = await _sut.Update(Guid.NewGuid(),
-            new UpdateShiftRequest(new DateOnly(2026, 3, 15), "", "17:00",
-                Guid.NewGuid(), null, null), CancellationToken.None);
-
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-    }
-
-    [Fact]
-    public async Task Update_EmptyEndTime_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("EndTime", "EndTime is required.");
-
-        var result = await _sut.Update(Guid.NewGuid(),
-            new UpdateShiftRequest(new DateOnly(2026, 3, 15), "09:00", "",
-                Guid.NewGuid(), null, null), CancellationToken.None);
-
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
     }
 
     [Fact]

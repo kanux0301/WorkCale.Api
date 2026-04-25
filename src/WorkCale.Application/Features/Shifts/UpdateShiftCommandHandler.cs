@@ -1,6 +1,8 @@
-using WorkCale.Application.DTOs;
-using WorkCale.Application.Services;
 using MediatR;
+using WorkCale.Application.Common;
+using WorkCale.Application.DTOs;
+using WorkCale.Application.Mappings;
+using WorkCale.Application.Services;
 
 namespace WorkCale.Application.Features.Shifts;
 
@@ -11,29 +13,21 @@ public class UpdateShiftCommandHandler(
 {
     public async Task<ShiftDto> Handle(UpdateShiftCommand request, CancellationToken ct)
     {
-        var shift = await shiftRepository.GetByIdAsync(request.ShiftId, ct)
-                    ?? throw new KeyNotFoundException("Shift not found.");
+        var shift = OwnershipGuards.RequireOwned(
+            await shiftRepository.GetByIdAsync(request.ShiftId, ct),
+            request.UserId, s => s.UserId, "Shift");
 
-        if (shift.UserId != request.UserId)
-            throw new UnauthorizedAccessException("You do not own this shift.");
+        var category = OwnershipGuards.RequireOwned(
+            await categoryRepository.GetByIdAsync(request.CategoryId, ct),
+            request.UserId, c => c.UserId, "Category");
 
-        var category = await categoryRepository.GetByIdAsync(request.CategoryId, ct)
-                       ?? throw new KeyNotFoundException("Category not found.");
+        shift.Update(
+            request.CategoryId, request.Date,
+            TimeFormats.ParseHHmm(request.StartTime), TimeFormats.ParseHHmm(request.EndTime),
+            request.Location, request.Notes, request.UnpaidBreakMinutes);
 
-        if (category.UserId != request.UserId)
-            throw new UnauthorizedAccessException("You do not own this category.");
-
-        var start = TimeOnly.ParseExact(request.StartTime, "HH:mm");
-        var end = TimeOnly.ParseExact(request.EndTime, "HH:mm");
-
-        shift.Update(request.CategoryId, request.Date, start, end, request.Location, request.Notes, request.UnpaidBreakMinutes);
         await shiftRepository.UpdateAsync(shift, ct);
 
-        return new ShiftDto(
-            shift.Id, shift.Date,
-            shift.StartTime.ToString("HH:mm"), shift.EndTime.ToString("HH:mm"),
-            shift.Location, shift.Notes, shift.UnpaidBreakMinutes,
-            shift.CreatedAt, shift.UpdatedAt,
-            new ShiftCategoryDto(category.Id, category.Name, category.Color, category.DefaultStartTime, category.DefaultEndTime, category.Icon, category.CreatedAt));
+        return shift.ToDto(category);
     }
 }

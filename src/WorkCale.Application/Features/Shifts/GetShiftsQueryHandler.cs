@@ -1,6 +1,7 @@
-using WorkCale.Application.DTOs;
-using WorkCale.Application.Services;
 using MediatR;
+using WorkCale.Application.DTOs;
+using WorkCale.Application.Mappings;
+using WorkCale.Application.Services;
 
 namespace WorkCale.Application.Features.Shifts;
 
@@ -10,16 +11,6 @@ public class GetShiftsQueryHandler(IShiftRepository repository)
     public async Task<IEnumerable<ShiftDto>> Handle(GetShiftsQuery request, CancellationToken ct)
     {
         var shifts = await repository.GetByUserAndMonthAsync(request.UserId, request.Year, request.Month, ct);
-        return shifts.Select(s => new ShiftDto(
-            s.Id,
-            s.Date,
-            s.StartTime.ToString("HH:mm"),
-            s.EndTime.ToString("HH:mm"),
-            s.Location,
-            s.Notes,
-            s.UnpaidBreakMinutes,
-            s.CreatedAt,
-            s.UpdatedAt,
-            new ShiftCategoryDto(s.Category.Id, s.Category.Name, s.Category.Color, s.Category.DefaultStartTime, s.Category.DefaultEndTime, s.Category.Icon, s.Category.CreatedAt)));
+        return shifts.Select(s => s.ToDto());
     }
 }

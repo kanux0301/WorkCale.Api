@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Shift> Shifts => Set<Shift>();
     public DbSet<CalendarShare> CalendarShares => Set<CalendarShare>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<InviteCode> InviteCodes => Set<InviteCode>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -68,6 +69,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany(u => u.SharesReceived)
                 .HasForeignKey(s => s.ViewerUserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<InviteCode>(e =>
+        {
+            e.HasKey(c => c.Id);
+            e.Property(c => c.Code).IsRequired().HasMaxLength(32);
+            e.HasIndex(c => c.Code).IsUnique();
+            e.Property(c => c.Note).HasMaxLength(200);
+            e.HasOne(c => c.IssuedByUser)
+                .WithMany()
+                .HasForeignKey(c => c.IssuedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<RefreshToken>(e =>

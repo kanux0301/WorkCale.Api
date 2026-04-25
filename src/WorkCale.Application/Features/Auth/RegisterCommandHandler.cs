@@ -1,13 +1,15 @@
+using MediatR;
+using WorkCale.Application.Common;
 using WorkCale.Application.DTOs;
 using WorkCale.Application.Services;
 using WorkCale.Domain.Entities;
-using MediatR;
 
 namespace WorkCale.Application.Features.Auth;
 
 public class RegisterCommandHandler(
     IUserRepository userRepository,
     IShiftCategoryRepository categoryRepository,
+    IInviteCodeRepository inviteCodeRepository,
     IPasswordHasher passwordHasher,
     IJwtService jwtService,
     IRefreshTokenRepository refreshTokenRepository)
@@ -15,29 +17,21 @@ public class RegisterCommandHandler(
 {
     public async Task<AuthResult> Handle(RegisterCommand request, CancellationToken ct)
     {
-        var existing = await userRepository.GetByEmailAsync(request.Email, ct);
-        if (existing is not null)
+        var invite = await inviteCodeRepository.GetByCodeAsync(request.InviteCode, ct);
+        if (invite is null || !invite.IsRedeemable(DateTime.UtcNow))
+            throw new InvalidOperationException("Invalid or already-used invite code.");
+
+        if (await userRepository.GetByEmailAsync(request.Email, ct) is not null)
             throw new InvalidOperationException("An account with this email already exists.");
 
-        var hash = passwordHasher.Hash(request.Password);
-        var user = User.Create(request.Email, request.DisplayName, hash);
+        var user = User.Create(request.Email, request.DisplayName, passwordHasher.Hash(request.Password));
         await userRepository.AddAsync(user, ct);
 
-        // Seed 2 default categories with default times
-        await categoryRepository.AddAsync(ShiftCategory.Create(user.Id, "Day Shift", "#F59E0B", "08:00", "16:00"), ct);
-        await categoryRepository.AddAsync(ShiftCategory.Create(user.Id, "Night Shift", "#6366F1", "20:00", "04:00"), ct);
+        invite.Consume(user.Id, DateTime.UtcNow);
+        await inviteCodeRepository.UpdateAsync(invite, ct);
 
-        return await IssueTokens(user, ct);
-    }
+        await DefaultCategories.SeedAsync(categoryRepository, user.Id, ct);
 
-    private async Task<AuthResult> IssueTokens(User user, CancellationToken ct)
-    {
-        var accessToken = jwtService.GenerateAccessToken(user);
-        var refreshTokenValue = jwtService.GenerateRefreshToken();
-        var refreshToken = RefreshToken.Create(user.Id, refreshTokenValue);
-        await refreshTokenRepository.AddAsync(refreshToken, ct);
-
-        var userDto = new UserDto(user.Id, user.Email, user.DisplayName, user.AvatarUrl, user.AvatarColor, user.AvatarIcon);
-        return new AuthResult(accessToken, refreshTokenValue, userDto);
+        return await AuthTokenIssuer.IssueAsync(jwtService, refreshTokenRepository, user, ct);
     }
 }

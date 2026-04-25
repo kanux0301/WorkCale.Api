@@ -1,6 +1,7 @@
-using WorkCale.Application.DTOs;
-using WorkCale.Application.Services;
 using MediatR;
+using WorkCale.Application.DTOs;
+using WorkCale.Application.Mappings;
+using WorkCale.Application.Services;
 
 namespace WorkCale.Application.Features.ShiftCategories;
 
@@ -10,6 +11,6 @@ public class GetCategoriesQueryHandler(IShiftCategoryRepository repository)
     public async Task<IEnumerable<ShiftCategoryDto>> Handle(GetCategoriesQuery request, CancellationToken ct)
     {
         var categories = await repository.GetByUserIdAsync(request.UserId, ct);
-        return categories.Select(c => new ShiftCategoryDto(c.Id, c.Name, c.Color, c.DefaultStartTime, c.DefaultEndTime, c.Icon, c.CreatedAt));
+        return categories.Select(c => c.ToDto());
     }
 }

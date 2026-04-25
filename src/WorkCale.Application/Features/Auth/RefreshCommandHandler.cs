@@ -1,7 +1,7 @@
+using MediatR;
+using WorkCale.Application.Common;
 using WorkCale.Application.DTOs;
 using WorkCale.Application.Services;
-using WorkCale.Domain.Entities;
-using MediatR;
 
 namespace WorkCale.Application.Features.Auth;
 
@@ -21,15 +21,8 @@ public class RefreshCommandHandler(
         var user = await userRepository.GetByIdAsync(token.UserId, ct)
                    ?? throw new UnauthorizedAccessException("User not found.");
 
-        // Rotate: delete old, issue new
         await refreshTokenRepository.DeleteAsync(token, ct);
 
-        var newRefreshTokenValue = jwtService.GenerateRefreshToken();
-        var newRefreshToken = RefreshToken.Create(user.Id, newRefreshTokenValue);
-        await refreshTokenRepository.AddAsync(newRefreshToken, ct);
-
-        var accessToken = jwtService.GenerateAccessToken(user);
-        var userDto = new UserDto(user.Id, user.Email, user.DisplayName, user.AvatarUrl, user.AvatarColor, user.AvatarIcon);
-        return new AuthResult(accessToken, newRefreshTokenValue, userDto);
+        return await AuthTokenIssuer.IssueAsync(jwtService, refreshTokenRepository, user, ct);
     }
 }

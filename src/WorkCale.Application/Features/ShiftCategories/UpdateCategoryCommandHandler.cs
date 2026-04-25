@@ -1,6 +1,8 @@
-using WorkCale.Application.DTOs;
-using WorkCale.Application.Services;
 using MediatR;
+using WorkCale.Application.Common;
+using WorkCale.Application.DTOs;
+using WorkCale.Application.Mappings;
+using WorkCale.Application.Services;
 
 namespace WorkCale.Application.Features.ShiftCategories;
 
@@ -9,26 +11,22 @@ public class UpdateCategoryCommandHandler(IShiftCategoryRepository repository, I
 {
     public async Task<ShiftCategoryDto> Handle(UpdateCategoryCommand request, CancellationToken ct)
     {
-        var category = await repository.GetByIdAsync(request.CategoryId, ct)
-                       ?? throw new KeyNotFoundException("Category not found.");
+        var category = OwnershipGuards.RequireOwned(
+            await repository.GetByIdAsync(request.CategoryId, ct),
+            request.UserId, c => c.UserId, "Category");
 
-        if (category.UserId != request.UserId)
-            throw new UnauthorizedAccessException("You do not own this category.");
-
-        var oldStart = category.DefaultStartTime;
-        var oldEnd = category.DefaultEndTime;
+        var (oldStart, oldEnd) = (category.DefaultStartTime, category.DefaultEndTime);
 
         category.Update(request.Name, request.Color, request.DefaultStartTime, request.DefaultEndTime, request.Icon);
         await repository.UpdateAsync(category, ct);
 
-        if (category.DefaultStartTime is not null && category.DefaultEndTime is not null &&
-            (category.DefaultStartTime != oldStart || category.DefaultEndTime != oldEnd))
+        if (category.DefaultStartTime is { } newStart && category.DefaultEndTime is { } newEnd &&
+            (newStart != oldStart || newEnd != oldEnd))
         {
-            var startTime = TimeOnly.Parse(category.DefaultStartTime);
-            var endTime = TimeOnly.Parse(category.DefaultEndTime);
-            await shiftRepository.UpdateTimesByCategoryAsync(category.Id, startTime, endTime, ct);
+            await shiftRepository.UpdateTimesByCategoryAsync(
+                category.Id, TimeFormats.ParseHHmm(newStart), TimeFormats.ParseHHmm(newEnd), ct);
         }
 
-        return new ShiftCategoryDto(category.Id, category.Name, category.Color, category.DefaultStartTime, category.DefaultEndTime, category.Icon, category.CreatedAt);
+        return category.ToDto();
     }
 }

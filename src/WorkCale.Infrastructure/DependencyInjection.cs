@@ -22,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<IShiftCategoryRepository, ShiftCategoryRepository>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<ICalendarShareRepository, CalendarShareRepository>();
+        services.AddScoped<IInviteCodeRepository, InviteCodeRepository>();
 
         // Auth services
         services.AddSingleton<IPasswordHasher, PasswordHasher>();

@@ -1,4 +1,5 @@
 using WorkCale.Application.DTOs;
+using WorkCale.Application.Mappings;
 using WorkCale.Application.Services;
 using MediatR;
 
@@ -13,13 +14,7 @@ public class GetMySharesQueryHandler(ICalendarShareRepository repository)
         var grantedToMe = await repository.GetGrantedToUserAsync(request.UserId, ct);
 
         return new MySharesDto(
-            grantedByMe.Select(s => new CalendarShareDto(
-                s.Id,
-                new UserDto(s.ViewerUser.Id, s.ViewerUser.Email, s.ViewerUser.DisplayName, s.ViewerUser.AvatarUrl),
-                s.CreatedAt)),
-            grantedToMe.Select(s => new CalendarShareDto(
-                s.Id,
-                new UserDto(s.OwnerUser.Id, s.OwnerUser.Email, s.OwnerUser.DisplayName, s.OwnerUser.AvatarUrl),
-                s.CreatedAt)));
+            grantedByMe.Select(s => new CalendarShareDto(s.Id, s.ViewerUser.ToDto(), s.CreatedAt)),
+            grantedToMe.Select(s => new CalendarShareDto(s.Id, s.OwnerUser.ToDto(), s.CreatedAt)));
     }
 }
