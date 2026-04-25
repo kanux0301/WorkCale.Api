@@ -22,10 +22,12 @@ public record LoginRequest(
 public record RegisterRequest(
     [Required, MaxLength(255)] string Email,
     [Required, MaxLength(100)] string DisplayName,
-    [Required] string Password);
+    [Required] string Password,
+    [Required, MaxLength(32)] string InviteCode);
 
 public record GoogleLoginRequest(
-    [Required] string IdToken);
+    [Required] string IdToken,
+    [MaxLength(32)] string? InviteCode = null);
 
 public record RefreshRequest(
     [Required] string RefreshToken);

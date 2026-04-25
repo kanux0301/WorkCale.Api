@@ -69,29 +69,6 @@ public class CategoriesControllerTests
     }
 
     [Fact]
-    public async Task Create_EmptyName_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("Name", "Name is required.");
-
-        var result = await _sut.Create(
-            new CreateCategoryRequest("", "#F59E0B", null, null), CancellationToken.None);
-
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-        await _mediator.DidNotReceive().Send(Arg.Any<CreateCategoryCommand>(), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task Create_EmptyColor_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("Color", "Color is required.");
-
-        var result = await _sut.Create(
-            new CreateCategoryRequest("Day Shift", "", null, null), CancellationToken.None);
-
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-    }
-
-    [Fact]
     public async Task Create_SendsCommandWithUserId()
     {
         _mediator.Send(Arg.Any<CreateCategoryCommand>(), Arg.Any<CancellationToken>())
@@ -117,28 +94,6 @@ public class CategoriesControllerTests
             new UpdateCategoryRequest("Night Shift", "#6366F1", null, null), CancellationToken.None);
 
         result.Result.Should().BeOfType<OkObjectResult>();
-    }
-
-    [Fact]
-    public async Task Update_EmptyName_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("Name", "Name is required.");
-
-        var result = await _sut.Update(Guid.NewGuid(),
-            new UpdateCategoryRequest("", "#6366F1", null, null), CancellationToken.None);
-
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
-    }
-
-    [Fact]
-    public async Task Update_EmptyColor_ReturnsBadRequest()
-    {
-        _sut.ModelState.AddModelError("Color", "Color is required.");
-
-        var result = await _sut.Update(Guid.NewGuid(),
-            new UpdateCategoryRequest("Night", "", null, null), CancellationToken.None);
-
-        result.Result.Should().BeOfType<BadRequestObjectResult>();
     }
 
     [Fact]

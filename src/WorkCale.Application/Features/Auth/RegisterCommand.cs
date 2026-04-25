@@ -3,4 +3,4 @@ using MediatR;
 
 namespace WorkCale.Application.Features.Auth;
 
-public record RegisterCommand(string Email, string DisplayName, string Password) : IRequest<AuthResult>;
+public record RegisterCommand(string Email, string DisplayName, string Password, string InviteCode) : IRequest<AuthResult>;

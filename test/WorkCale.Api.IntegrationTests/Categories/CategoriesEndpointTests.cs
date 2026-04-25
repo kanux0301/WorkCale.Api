@@ -14,7 +14,7 @@ public class CategoriesEndpointTests(TestWebAppFactory factory) : IClassFixture<
     private async Task<(HttpClient client, string token, List<ShiftCategoryDto> cats)> SetupAsync()
     {
         var client = factory.CreateClient();
-        var auth = await AuthHelper.RegisterAndLoginAsync(client);
+        var auth = await AuthHelper.RegisterAndLoginAsync(client, factory);
         client.SetBearerToken(auth.AccessToken);
         var cats = await client.GetFromJsonAsync<List<ShiftCategoryDto>>("/api/categories");
         return (client, auth.AccessToken, cats!);

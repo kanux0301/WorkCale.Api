@@ -12,6 +12,8 @@ public class User
     public string? AvatarColor { get; private set; }
     /// <summary>Ionicon name (e.g. "briefcase-outline") for the personal avatar.</summary>
     public string? AvatarIcon { get; private set; }
+    /// <summary>When true this user can issue/list invite codes. Bootstrapped via SQL on the very first account; no self-service promotion.</summary>
+    public bool IsAdmin { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 

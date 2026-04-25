@@ -1,13 +1,15 @@
+using MediatR;
+using WorkCale.Application.Common;
 using WorkCale.Application.DTOs;
 using WorkCale.Application.Services;
 using WorkCale.Domain.Entities;
-using MediatR;
 
 namespace WorkCale.Application.Features.Auth;
 
 public class GoogleLoginCommandHandler(
     IUserRepository userRepository,
     IShiftCategoryRepository categoryRepository,
+    IInviteCodeRepository inviteCodeRepository,
     IGoogleTokenVerifier googleTokenVerifier,
     IJwtService jwtService,
     IRefreshTokenRepository refreshTokenRepository)
@@ -17,32 +19,32 @@ public class GoogleLoginCommandHandler(
     {
         var googleUser = await googleTokenVerifier.VerifyAsync(request.IdToken, ct);
 
-        // Try find by GoogleId first, then by email
         var user = await userRepository.GetByGoogleIdAsync(googleUser.GoogleId, ct)
                    ?? await userRepository.GetByEmailAsync(googleUser.Email, ct);
 
         if (user is null)
         {
-            // New user — create and seed default categories
+            if (string.IsNullOrWhiteSpace(request.InviteCode))
+                throw new InvalidOperationException("Invite code is required for new accounts.");
+
+            var invite = await inviteCodeRepository.GetByCodeAsync(request.InviteCode, ct);
+            if (invite is null || !invite.IsRedeemable(DateTime.UtcNow))
+                throw new InvalidOperationException("Invalid or already-used invite code.");
+
             user = User.CreateWithGoogle(googleUser.Email, googleUser.Name, googleUser.GoogleId, googleUser.Picture);
             await userRepository.AddAsync(user, ct);
 
-            await categoryRepository.AddAsync(ShiftCategory.Create(user.Id, "Day Shift", "#F59E0B"), ct);
-            await categoryRepository.AddAsync(ShiftCategory.Create(user.Id, "Night Shift", "#6366F1"), ct);
+            invite.Consume(user.Id, DateTime.UtcNow);
+            await inviteCodeRepository.UpdateAsync(invite, ct);
+
+            await DefaultCategories.SeedAsync(categoryRepository, user.Id, ct);
         }
         else if (user.GoogleId is null)
         {
-            // Existing email/password account — link Google
             user.LinkGoogle(googleUser.GoogleId, googleUser.Picture);
             await userRepository.UpdateAsync(user, ct);
         }
 
-        var accessToken = jwtService.GenerateAccessToken(user);
-        var refreshTokenValue = jwtService.GenerateRefreshToken();
-        var refreshToken = RefreshToken.Create(user.Id, refreshTokenValue);
-        await refreshTokenRepository.AddAsync(refreshToken, ct);
-
-        var userDto = new UserDto(user.Id, user.Email, user.DisplayName, user.AvatarUrl, user.AvatarColor, user.AvatarIcon);
-        return new AuthResult(accessToken, refreshTokenValue, userDto);
+        return await AuthTokenIssuer.IssueAsync(jwtService, refreshTokenRepository, user, ct);
     }
 }

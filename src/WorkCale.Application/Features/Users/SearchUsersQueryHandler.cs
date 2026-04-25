@@ -1,6 +1,7 @@
-using WorkCale.Application.DTOs;
-using WorkCale.Application.Services;
 using MediatR;
+using WorkCale.Application.DTOs;
+using WorkCale.Application.Mappings;
+using WorkCale.Application.Services;
 
 namespace WorkCale.Application.Features.Users;
 
@@ -15,6 +16,6 @@ public class SearchUsersQueryHandler(IUserRepository userRepository)
         var users = await userRepository.SearchAsync(request.Query, ct);
         return users
             .Where(u => u.Id != request.RequestingUserId)
-            .Select(u => new UserDto(u.Id, u.Email, u.DisplayName, u.AvatarUrl));
+            .Select(u => u.ToDto());
     }
 }

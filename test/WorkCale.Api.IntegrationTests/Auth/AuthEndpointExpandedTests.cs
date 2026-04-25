@@ -44,7 +44,7 @@ public class AuthEndpointExpandedTests(TestWebAppFactory factory) : IClassFixtur
     public async Task Register_SeedsDefaultCategories()
     {
         var client = factory.CreateClient();
-        var auth = await AuthHelper.RegisterAndLoginAsync(client);
+        var auth = await AuthHelper.RegisterAndLoginAsync(client, factory);
         client.SetBearerToken(auth.AccessToken);
 
         var cats = await client.GetFromJsonAsync<List<ShiftCategoryDto>>("/api/categories");
@@ -98,7 +98,7 @@ public class AuthEndpointExpandedTests(TestWebAppFactory factory) : IClassFixtur
     public async Task Refresh_TokenCannotBeReusedAfterRotation()
     {
         var client = factory.CreateClient();
-        var auth = await AuthHelper.RegisterAndLoginAsync(client);
+        var auth = await AuthHelper.RegisterAndLoginAsync(client, factory);
 
         var first = await client.PostAsJsonAsync("/api/auth/refresh",
             new RefreshRequest(auth.RefreshToken));
@@ -115,7 +115,7 @@ public class AuthEndpointExpandedTests(TestWebAppFactory factory) : IClassFixtur
     public async Task Logout_WithValidToken_Returns204()
     {
         var client = factory.CreateClient();
-        var auth = await AuthHelper.RegisterAndLoginAsync(client);
+        var auth = await AuthHelper.RegisterAndLoginAsync(client, factory);
 
         var response = await client.PostAsJsonAsync("/api/auth/logout",
             new LogoutRequest(auth.RefreshToken));
@@ -136,7 +136,7 @@ public class AuthEndpointExpandedTests(TestWebAppFactory factory) : IClassFixtur
     public async Task Logout_InvalidatesRefreshToken()
     {
         var client = factory.CreateClient();
-        var auth = await AuthHelper.RegisterAndLoginAsync(client);
+        var auth = await AuthHelper.RegisterAndLoginAsync(client, factory);
 
         await client.PostAsJsonAsync("/api/auth/logout",
             new LogoutRequest(auth.RefreshToken));

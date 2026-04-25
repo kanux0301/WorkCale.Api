@@ -1,4 +1,5 @@
 using WorkCale.Application.DTOs;
+using WorkCale.Application.Mappings;
 using WorkCale.Application.Services;
 using MediatR;
 
@@ -12,6 +13,6 @@ public class GetCurrentUserQueryHandler(IUserRepository userRepository)
         var user = await userRepository.GetByIdAsync(request.UserId, ct)
                    ?? throw new KeyNotFoundException("User not found.");
 
-        return new UserDto(user.Id, user.Email, user.DisplayName, user.AvatarUrl, user.AvatarColor, user.AvatarIcon);
+        return user.ToDto();
     }
 }

@@ -12,7 +12,7 @@ public class CalendarSharesEndpointTests(TestWebAppFactory factory) : IClassFixt
     private async Task<(HttpClient client, AuthResult auth)> SetupAsync()
     {
         var client = factory.CreateClient();
-        var auth = await AuthHelper.RegisterAndLoginAsync(client);
+        var auth = await AuthHelper.RegisterAndLoginAsync(client, factory);
         client.SetBearerToken(auth.AccessToken);
         return (client, auth);
     }

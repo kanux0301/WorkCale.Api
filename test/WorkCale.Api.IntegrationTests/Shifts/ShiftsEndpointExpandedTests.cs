@@ -12,7 +12,7 @@ public class ShiftsEndpointExpandedTests(TestWebAppFactory factory) : IClassFixt
     private async Task<(AuthResult auth, ShiftCategoryDto category, HttpClient client)> SetupAsync()
     {
         var client = factory.CreateClient();
-        var auth = await AuthHelper.RegisterAndLoginAsync(client);
+        var auth = await AuthHelper.RegisterAndLoginAsync(client, factory);
         client.SetBearerToken(auth.AccessToken);
         var cats = await client.GetFromJsonAsync<List<ShiftCategoryDto>>("/api/categories");
         return (auth, cats!.First(), client);

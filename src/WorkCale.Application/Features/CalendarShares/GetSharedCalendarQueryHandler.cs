@@ -1,4 +1,5 @@
 using WorkCale.Application.DTOs;
+using WorkCale.Application.Mappings;
 using WorkCale.Application.Services;
 using MediatR;
 
@@ -21,13 +22,6 @@ public class GetSharedCalendarQueryHandler(
 
         var shifts = await shiftRepository.GetByUserAndMonthAsync(request.OwnerUserId, request.Year, request.Month, ct);
 
-        var ownerDto = new UserDto(owner.Id, owner.Email, owner.DisplayName, owner.AvatarUrl);
-        var shiftDtos = shifts.Select(s => new ShiftDto(
-            s.Id, s.Date,
-            s.StartTime.ToString("HH:mm"), s.EndTime.ToString("HH:mm"),
-            s.Location, s.Notes, s.UnpaidBreakMinutes, s.CreatedAt, s.UpdatedAt,
-            new ShiftCategoryDto(s.Category.Id, s.Category.Name, s.Category.Color, s.Category.DefaultStartTime, s.Category.DefaultEndTime, s.Category.Icon, s.Category.CreatedAt)));
-
-        return new SharedCalendarDto(ownerDto, shiftDtos);
+        return new SharedCalendarDto(owner.ToDto(), shifts.Select(s => s.ToDto()));
     }
 }
