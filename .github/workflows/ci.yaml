@@ -39,6 +39,15 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Test
+        env:
+          # Integration tests boot the real Program.cs; supply the same config
+          # keys the app reads at startup. Values are throwaway — the test
+          # factory swaps the DbContext for InMemory before any request runs.
+          Jwt__Key: ci-only-signing-key-not-used-in-prod-0123456789abcdef
+          Jwt__Issuer: WorkCale.Api
+          Jwt__Audience: WorkCale.Client
+          Jwt__ExpirationMinutes: "60"
+          ConnectionStrings__Database: Host=localhost;Database=ignored;Username=ignored;Password=ignored
         run: |
           dotnet test --configuration Release --no-build \
             --logger "trx;LogFileName=test-results.trx" \
