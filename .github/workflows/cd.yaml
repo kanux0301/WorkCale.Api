@@ -1,0 +1,142 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: workcale-api
+  PROJECT_NUMBER: "417063688228"
+  REGION: us-central1
+  REPO: workcale
+  SERVICE: workcale-api
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      checks: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        env:
+          Jwt__Key: ci-only-signing-key-not-used-in-prod-0123456789abcdef
+          Jwt__Issuer: WorkCale.Api
+          Jwt__Audience: WorkCale.Client
+          Jwt__ExpirationMinutes: "60"
+          ConnectionStrings__Database: Host=localhost;Database=ignored;Username=ignored;Password=ignored
+        run: dotnet test --configuration Release --no-build
+
+  deploy:
+    name: Deploy to Cloud Run
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github
+          service_account: workcale-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker auth for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build + push image
+        run: |
+          IMG_SHA=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/api:${{ github.sha }}
+          IMG_LATEST=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/api:latest
+          docker build -t "$IMG_SHA" -t "$IMG_LATEST" .
+          docker push "$IMG_SHA"
+          docker push "$IMG_LATEST"
+
+      - name: Capture previous revision (for rollback)
+        id: capture
+        run: |
+          PREV=$(gcloud run services describe ${{ env.SERVICE }} \
+            --region ${{ env.REGION }} \
+            --format='value(status.latestReadyRevisionName)' 2>/dev/null || echo "")
+          echo "previous_revision=$PREV" >> "$GITHUB_OUTPUT"
+          echo "Previous revision: $PREV"
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/api:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --revision-suffix sha-${GITHUB_SHA::8} \
+            --min-instances 0 \
+            --max-instances 3 \
+            --memory 512Mi \
+            --cpu 1 \
+            --timeout 60 \
+            --port 8080 \
+            --set-env-vars "ASPNETCORE_ENVIRONMENT=Production,Jwt__Issuer=WorkCale.Api,Jwt__Audience=WorkCale.Client,Jwt__ExpirationMinutes=60" \
+            --set-secrets "ConnectionStrings__Database=workcale-db-connstr:latest,Jwt__Key=workcale-jwt-key:latest"
+
+      - name: Smoke test /health
+        run: |
+          URL=$(gcloud run services describe ${{ env.SERVICE }} \
+            --region ${{ env.REGION }} \
+            --format='value(status.url)')
+          echo "Service URL: $URL"
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS --max-time 10 "$URL/health" > /dev/null; then
+              echo "Smoke test passed on attempt $i"
+              exit 0
+            fi
+            echo "Attempt $i failed; retrying in 5s..."
+            sleep 5
+          done
+          echo "Smoke test failed after 10 attempts"
+          exit 1
+
+      - name: Rollback to previous revision on failure
+        if: failure() && steps.capture.outputs.previous_revision != ''
+        run: |
+          echo "Rolling back to ${{ steps.capture.outputs.previous_revision }}"
+          gcloud run services update-traffic ${{ env.SERVICE }} \
+            --region ${{ env.REGION }} \
+            --to-revisions ${{ steps.capture.outputs.previous_revision }}=100
+
+      - name: Show service URL
+        if: success()
+        run: gcloud run services describe ${{ env.SERVICE }} --region ${{ env.REGION }} --format='value(status.url)'
