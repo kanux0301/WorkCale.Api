@@ -1,15 +1,13 @@
-name: CI/CD
+name: CD
 
 on:
-  pull_request:
-    branches: [main]
   push:
     branches: [main]
   workflow_dispatch:
 
 concurrency:
-  group: ci-cd-${{ github.ref }}
-  cancel-in-progress: true
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
   PROJECT_ID: workcale-api
@@ -26,7 +24,6 @@ jobs:
     permissions:
       contents: read
       checks: write
-      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -51,49 +48,16 @@ jobs:
 
       - name: Test
         env:
-          # Integration tests boot the real Program.cs; supply the same config
-          # keys the app reads at startup. Values are throwaway — the test
-          # factory swaps the DbContext for InMemory before any request runs.
           Jwt__Key: ci-only-signing-key-not-used-in-prod-0123456789abcdef
           Jwt__Issuer: WorkCale.Api
           Jwt__Audience: WorkCale.Client
           Jwt__ExpirationMinutes: "60"
           ConnectionStrings__Database: Host=localhost;Database=ignored;Username=ignored;Password=ignored
-        run: |
-          dotnet test --configuration Release --no-build \
-            --logger "trx;LogFileName=test-results.trx" \
-            --collect:"XPlat Code Coverage" \
-            --results-directory ./TestResults
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: ./TestResults/**/*.trx
-          retention-days: 14
-
-      - name: Upload coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: ./TestResults/**/coverage.cobertura.xml
-          retention-days: 14
-
-      - name: Test summary
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: dotnet tests
-          path: ./TestResults/**/*.trx
-          reporter: dotnet-trx
-          fail-on-error: false
+        run: dotnet test --configuration Release --no-build
 
   deploy:
     name: Deploy to Cloud Run
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -149,7 +113,6 @@ jobs:
             --set-secrets "ConnectionStrings__Database=workcale-db-connstr:latest,Jwt__Key=workcale-jwt-key:latest"
 
       - name: Smoke test /health
-        id: smoke
         run: |
           URL=$(gcloud run services describe ${{ env.SERVICE }} \
             --region ${{ env.REGION }} \
