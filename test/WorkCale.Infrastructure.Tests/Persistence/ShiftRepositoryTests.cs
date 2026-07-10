@@ -28,7 +28,7 @@ public class ShiftRepositoryTests
         db.Users.Add(user);
         await db.SaveChangesAsync();
 
-        var cat = ShiftCategory.Create(user.Id, "Day", "#F59E0B");
+        var cat = ShiftCategory.Create(user.Id, Guid.NewGuid(), "Day", "#F59E0B");
         db.ShiftCategories.Add(cat);
         await db.SaveChangesAsync();
 
@@ -42,8 +42,7 @@ public class ShiftRepositoryTests
         var (user, cat) = await SeedAsync(db);
         var repo = new ShiftRepository(db);
 
-        var shift = Shift.Create(user.Id, cat.Id, new DateOnly(2026, 3, 10),
-            new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
+        var shift = Shift.Create(user.Id, Guid.NewGuid(), cat.Id, new DateOnly(2026, 3, 10), new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
         await repo.AddAsync(shift);
 
         db.Shifts.Should().ContainSingle();
@@ -56,8 +55,7 @@ public class ShiftRepositoryTests
         var (user, cat) = await SeedAsync(db);
         var repo = new ShiftRepository(db);
 
-        var shift = Shift.Create(user.Id, cat.Id, new DateOnly(2026, 3, 10),
-            new TimeOnly(9, 0), new TimeOnly(17, 0), "Office", null);
+        var shift = Shift.Create(user.Id, Guid.NewGuid(), cat.Id, new DateOnly(2026, 3, 10), new TimeOnly(9, 0), new TimeOnly(17, 0), "Office", null);
         await repo.AddAsync(shift);
 
         var found = await repo.GetByIdAsync(shift.Id);
@@ -86,13 +84,10 @@ public class ShiftRepositoryTests
         var repo = new ShiftRepository(db);
 
         // In March 2026
-        var s1 = Shift.Create(user.Id, cat.Id, new DateOnly(2026, 3, 5),
-            new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
-        var s2 = Shift.Create(user.Id, cat.Id, new DateOnly(2026, 3, 20),
-            new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
+        var s1 = Shift.Create(user.Id, Guid.NewGuid(), cat.Id, new DateOnly(2026, 3, 5), new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
+        var s2 = Shift.Create(user.Id, Guid.NewGuid(), cat.Id, new DateOnly(2026, 3, 20), new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
         // Outside March 2026
-        var s3 = Shift.Create(user.Id, cat.Id, new DateOnly(2026, 4, 1),
-            new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
+        var s3 = Shift.Create(user.Id, Guid.NewGuid(), cat.Id, new DateOnly(2026, 4, 1), new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
 
         await repo.AddAsync(s1);
         await repo.AddAsync(s2);
@@ -128,10 +123,8 @@ public class ShiftRepositoryTests
 
         var repo = new ShiftRepository(db);
 
-        await repo.AddAsync(Shift.Create(user.Id, cat.Id, new DateOnly(2026, 3, 1),
-            new TimeOnly(9, 0), new TimeOnly(17, 0), null, null));
-        await repo.AddAsync(Shift.Create(otherUser.Id, cat.Id, new DateOnly(2026, 3, 2),
-            new TimeOnly(9, 0), new TimeOnly(17, 0), null, null));
+        await repo.AddAsync(Shift.Create(user.Id, Guid.NewGuid(), cat.Id, new DateOnly(2026, 3, 1), new TimeOnly(9, 0), new TimeOnly(17, 0), null, null));
+        await repo.AddAsync(Shift.Create(otherUser.Id, Guid.NewGuid(), cat.Id, new DateOnly(2026, 3, 2), new TimeOnly(9, 0), new TimeOnly(17, 0), null, null));
 
         var results = (await repo.GetByUserAndMonthAsync(user.Id, 2026, 3)).ToList();
 
@@ -146,11 +139,10 @@ public class ShiftRepositoryTests
         var (user, cat) = await SeedAsync(db);
         var repo = new ShiftRepository(db);
 
-        var shift = Shift.Create(user.Id, cat.Id, new DateOnly(2026, 3, 10),
-            new TimeOnly(9, 0), new TimeOnly(17, 0), "Office", null);
+        var shift = Shift.Create(user.Id, Guid.NewGuid(), cat.Id, new DateOnly(2026, 3, 10), new TimeOnly(9, 0), new TimeOnly(17, 0), "Office", null);
         await repo.AddAsync(shift);
 
-        shift.Update(cat.Id, new DateOnly(2026, 3, 11), new TimeOnly(8, 0), new TimeOnly(16, 0), "Home", "Notes");
+        shift.Update(Guid.NewGuid(), cat.Id, new DateOnly(2026, 3, 11), new TimeOnly(8, 0), new TimeOnly(16, 0), "Home", "Notes");
         await repo.UpdateAsync(shift);
 
         var updated = await repo.GetByIdAsync(shift.Id);
@@ -165,8 +157,7 @@ public class ShiftRepositoryTests
         var (user, cat) = await SeedAsync(db);
         var repo = new ShiftRepository(db);
 
-        var shift = Shift.Create(user.Id, cat.Id, new DateOnly(2026, 3, 10),
-            new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
+        var shift = Shift.Create(user.Id, Guid.NewGuid(), cat.Id, new DateOnly(2026, 3, 10), new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
         await repo.AddAsync(shift);
 
         await repo.DeleteAsync(shift);

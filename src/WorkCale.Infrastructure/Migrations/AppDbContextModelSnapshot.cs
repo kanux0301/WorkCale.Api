@@ -93,6 +93,54 @@ namespace WorkCale.Infrastructure.Migrations
                     b.ToTable("InviteCodes");
                 });
 
+            modelBuilder.Entity("WorkCale.Domain.Entities.Job", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Jobs_UserId_DefaultUnique")
+                        .HasFilter("\"IsDefault\" = TRUE");
+
+                    b.ToTable("Jobs");
+                });
+
             modelBuilder.Entity("WorkCale.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -141,6 +189,9 @@ namespace WorkCale.Infrastructure.Migrations
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time without time zone");
 
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Location")
                         .HasColumnType("text");
 
@@ -165,7 +216,11 @@ namespace WorkCale.Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("JobId");
+
                     b.HasIndex("UserId", "Date");
+
+                    b.HasIndex("UserId", "JobId", "Date");
 
                     b.ToTable("Shifts");
                 });
@@ -196,6 +251,9 @@ namespace WorkCale.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -209,7 +267,11 @@ namespace WorkCale.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("JobId");
+
                     b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "JobId");
 
                     b.ToTable("ShiftCategories");
                 });
@@ -299,6 +361,17 @@ namespace WorkCale.Infrastructure.Migrations
                     b.Navigation("IssuedByUser");
                 });
 
+            modelBuilder.Entity("WorkCale.Domain.Entities.Job", b =>
+                {
+                    b.HasOne("WorkCale.Domain.Entities.User", "User")
+                        .WithMany("Jobs")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WorkCale.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("WorkCale.Domain.Entities.User", "User")
@@ -318,6 +391,12 @@ namespace WorkCale.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WorkCale.Domain.Entities.Job", "Job")
+                        .WithMany("Shifts")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("WorkCale.Domain.Entities.User", "User")
                         .WithMany("Shifts")
                         .HasForeignKey("UserId")
@@ -326,18 +405,35 @@ namespace WorkCale.Infrastructure.Migrations
 
                     b.Navigation("Category");
 
+                    b.Navigation("Job");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("WorkCale.Domain.Entities.ShiftCategory", b =>
                 {
+                    b.HasOne("WorkCale.Domain.Entities.Job", "Job")
+                        .WithMany("Categories")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("WorkCale.Domain.Entities.User", "User")
                         .WithMany("ShiftCategories")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Job");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WorkCale.Domain.Entities.Job", b =>
+                {
+                    b.Navigation("Categories");
+
+                    b.Navigation("Shifts");
                 });
 
             modelBuilder.Entity("WorkCale.Domain.Entities.ShiftCategory", b =>
@@ -347,6 +443,8 @@ namespace WorkCale.Infrastructure.Migrations
 
             modelBuilder.Entity("WorkCale.Domain.Entities.User", b =>
                 {
+                    b.Navigation("Jobs");
+
                     b.Navigation("RefreshTokens");
 
                     b.Navigation("SharesGranted");

@@ -4,6 +4,7 @@ namespace WorkCale.Application.DTOs;
 
 public record ShiftCategoryDto(
     Guid Id,
+    Guid JobId,
     string Name,
     string Color,
     string? DefaultStartTime,
@@ -12,6 +13,7 @@ public record ShiftCategoryDto(
     DateTime CreatedAt);
 
 public record CreateCategoryRequest(
+    [Required] Guid JobId,
     [Required, MaxLength(50)] string Name,
     [Required] string Color,
     string? DefaultStartTime,

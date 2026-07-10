@@ -9,7 +9,7 @@ public class ShiftCategoryTests
     public void Create_SetsPropertiesCorrectly()
     {
         var userId = Guid.NewGuid();
-        var cat = ShiftCategory.Create(userId, "Day Shift", "#F59E0B");
+        var cat = ShiftCategory.Create(userId, Guid.NewGuid(), "Day Shift", "#F59E0B");
 
         cat.Id.Should().NotBeEmpty();
         cat.UserId.Should().Be(userId);
@@ -23,7 +23,7 @@ public class ShiftCategoryTests
     [Fact]
     public void Update_ChangesNameAndColor()
     {
-        var cat = ShiftCategory.Create(Guid.NewGuid(), "Old", "#000000");
+        var cat = ShiftCategory.Create(Guid.NewGuid(), Guid.NewGuid(), "Old", "#000000");
         var beforeUpdate = cat.UpdatedAt;
 
         cat.Update("New Name", "#FFFFFF", null, null);
@@ -36,7 +36,7 @@ public class ShiftCategoryTests
     [Fact]
     public void Update_DoesNotChangeCreatedAt()
     {
-        var cat = ShiftCategory.Create(Guid.NewGuid(), "Cat", "#AABBCC");
+        var cat = ShiftCategory.Create(Guid.NewGuid(), Guid.NewGuid(), "Cat", "#AABBCC");
         var created = cat.CreatedAt;
 
         cat.Update("New", "#112233", null, null);

@@ -19,7 +19,7 @@ public class CreateShiftCommandHandler(
             request.UserId, c => c.UserId, "Category");
 
         var shift = Shift.Create(
-            request.UserId, request.CategoryId, request.Date,
+            request.UserId, category.JobId, request.CategoryId, request.Date,
             TimeFormats.ParseHHmm(request.StartTime), TimeFormats.ParseHHmm(request.EndTime),
             request.Location, request.Notes, request.UnpaidBreakMinutes);
 

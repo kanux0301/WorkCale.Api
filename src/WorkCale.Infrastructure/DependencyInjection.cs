@@ -19,6 +19,7 @@ public static class DependencyInjection
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IJobRepository, JobRepository>();
         services.AddScoped<IShiftCategoryRepository, ShiftCategoryRepository>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<ICalendarShareRepository, CalendarShareRepository>();

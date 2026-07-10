@@ -23,7 +23,7 @@ public class UpdateCategoryCommandHandlerTests
     public async Task Handle_WithValidOwner_UpdatesAndReturnsDto()
     {
         var userId = Guid.NewGuid();
-        var category = ShiftCategory.Create(userId, "Day Shift", "#F59E0B");
+        var category = ShiftCategory.Create(userId, Guid.NewGuid(), "Day Shift", "#F59E0B");
         _repo.GetByIdAsync(category.Id, default).Returns(category);
 
         var result = await _handler.Handle(
@@ -49,7 +49,7 @@ public class UpdateCategoryCommandHandlerTests
     public async Task Handle_WhenCategoryOwnedByOtherUser_ThrowsUnauthorized()
     {
         var ownerUserId = Guid.NewGuid();
-        var category = ShiftCategory.Create(ownerUserId, "Day", "#F59E0B");
+        var category = ShiftCategory.Create(ownerUserId, Guid.NewGuid(), "Day", "#F59E0B");
         _repo.GetByIdAsync(category.Id, default).Returns(category);
 
         var act = () => _handler.Handle(

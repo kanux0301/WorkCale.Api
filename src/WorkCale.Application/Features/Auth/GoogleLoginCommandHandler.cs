@@ -8,6 +8,7 @@ namespace WorkCale.Application.Features.Auth;
 
 public class GoogleLoginCommandHandler(
     IUserRepository userRepository,
+    IJobRepository jobRepository,
     IShiftCategoryRepository categoryRepository,
     IInviteCodeRepository inviteCodeRepository,
     IGoogleTokenVerifier googleTokenVerifier,
@@ -37,7 +38,8 @@ public class GoogleLoginCommandHandler(
             invite.Consume(user.Id, DateTime.UtcNow);
             await inviteCodeRepository.UpdateAsync(invite, ct);
 
-            await DefaultCategories.SeedAsync(categoryRepository, user.Id, ct);
+            var defaultJob = await DefaultJob.SeedAsync(jobRepository, user.Id, ct);
+            await DefaultCategories.SeedAsync(categoryRepository, user.Id, defaultJob.Id, ct);
         }
         else if (user.GoogleId is null)
         {

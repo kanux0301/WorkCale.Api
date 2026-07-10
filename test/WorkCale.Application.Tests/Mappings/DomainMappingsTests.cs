@@ -25,8 +25,7 @@ public class DomainMappingsTests
     [Fact]
     public void ShiftCategory_ToDto_CopiesAllFields()
     {
-        var category = ShiftCategory.Create(
-            Guid.NewGuid(), "Day", "#F59E0B", "08:00", "16:00", "sun");
+        var category = ShiftCategory.Create(Guid.NewGuid(), Guid.NewGuid(), "Day", "#F59E0B", "08:00", "16:00", "sun");
 
         var dto = category.ToDto();
 
@@ -41,11 +40,8 @@ public class DomainMappingsTests
     [Fact]
     public void Shift_ToDto_WithExplicitCategory_FormatsTimesAsHHmm()
     {
-        var category = ShiftCategory.Create(Guid.NewGuid(), "Day", "#F59E0B", null, null);
-        var shift = Shift.Create(
-            Guid.NewGuid(), category.Id, new DateOnly(2026, 4, 25),
-            new TimeOnly(9, 5), new TimeOnly(17, 0),
-            "Office", "Note", 30);
+        var category = ShiftCategory.Create(Guid.NewGuid(), Guid.NewGuid(), "Day", "#F59E0B", null, null);
+        var shift = Shift.Create(Guid.NewGuid(), Guid.NewGuid(), category.Id, new DateOnly(2026, 4, 25), new TimeOnly(9, 5), new TimeOnly(17, 0), "Office", "Note", 30);
 
         var dto = shift.ToDto(category);
 

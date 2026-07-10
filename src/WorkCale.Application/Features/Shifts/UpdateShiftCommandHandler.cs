@@ -22,7 +22,7 @@ public class UpdateShiftCommandHandler(
             request.UserId, c => c.UserId, "Category");
 
         shift.Update(
-            request.CategoryId, request.Date,
+            category.JobId, request.CategoryId, request.Date,
             TimeFormats.ParseHHmm(request.StartTime), TimeFormats.ParseHHmm(request.EndTime),
             request.Location, request.Notes, request.UnpaidBreakMinutes);
 

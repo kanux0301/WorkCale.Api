@@ -13,8 +13,8 @@ public class ShiftsController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ShiftDto>>> GetByMonth(
-        [FromQuery] int year, [FromQuery] int month, CancellationToken ct) =>
-        Ok(await mediator.Send(new GetShiftsQuery(this.GetUserId(), year, month), ct));
+        [FromQuery] int year, [FromQuery] int month, [FromQuery] Guid? jobId, CancellationToken ct) =>
+        Ok(await mediator.Send(new GetShiftsQuery(this.GetUserId(), year, month, jobId), ct));
 
     [HttpPost]
     public async Task<ActionResult<ShiftDto>> Create([FromBody] CreateShiftRequest request, CancellationToken ct)

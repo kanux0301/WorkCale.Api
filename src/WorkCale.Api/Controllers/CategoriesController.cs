@@ -12,14 +12,16 @@ namespace WorkCale.Api.Controllers;
 public class CategoriesController(IMediator mediator) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ShiftCategoryDto>>> GetAll(CancellationToken ct) =>
-        Ok(await mediator.Send(new GetCategoriesQuery(this.GetUserId()), ct));
+    public async Task<ActionResult<IEnumerable<ShiftCategoryDto>>> GetAll(
+        [FromQuery] Guid? jobId,
+        CancellationToken ct) =>
+        Ok(await mediator.Send(new GetCategoriesQuery(this.GetUserId(), jobId), ct));
 
     [HttpPost]
     public async Task<ActionResult<ShiftCategoryDto>> Create([FromBody] CreateCategoryRequest request, CancellationToken ct)
     {
         var result = await mediator.Send(new CreateCategoryCommand(
-            this.GetUserId(), request.Name, request.Color,
+            this.GetUserId(), request.JobId, request.Name, request.Color,
             request.DefaultStartTime, request.DefaultEndTime, request.Icon), ct);
         return CreatedAtAction(nameof(GetAll), result);
     }

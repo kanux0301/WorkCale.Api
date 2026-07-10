@@ -36,7 +36,7 @@ public class ShiftCategoryRepositoryTests
         await using var db = CreateDb();
         var user = await SeedUserAsync(db);
         var repo = new ShiftCategoryRepository(db);
-        var cat = ShiftCategory.Create(user.Id, "Day Shift", "#F59E0B");
+        var cat = ShiftCategory.Create(user.Id, Guid.NewGuid(), "Day Shift", "#F59E0B");
 
         await repo.AddAsync(cat);
 
@@ -53,9 +53,9 @@ public class ShiftCategoryRepositoryTests
         await db.SaveChangesAsync();
 
         var repo = new ShiftCategoryRepository(db);
-        await repo.AddAsync(ShiftCategory.Create(user.Id, "Cat1", "#AABBCC"));
-        await repo.AddAsync(ShiftCategory.Create(user.Id, "Cat2", "#112233"));
-        await repo.AddAsync(ShiftCategory.Create(otherUser.Id, "Other Cat", "#445566"));
+        await repo.AddAsync(ShiftCategory.Create(user.Id, Guid.NewGuid(), "Cat1", "#AABBCC"));
+        await repo.AddAsync(ShiftCategory.Create(user.Id, Guid.NewGuid(), "Cat2", "#112233"));
+        await repo.AddAsync(ShiftCategory.Create(otherUser.Id, Guid.NewGuid(), "Other Cat", "#445566"));
 
         var results = (await repo.GetByUserIdAsync(user.Id)).ToList();
 
@@ -81,7 +81,7 @@ public class ShiftCategoryRepositoryTests
         await using var db = CreateDb();
         var user = await SeedUserAsync(db);
         var repo = new ShiftCategoryRepository(db);
-        var cat = ShiftCategory.Create(user.Id, "Night", "#6366F1");
+        var cat = ShiftCategory.Create(user.Id, Guid.NewGuid(), "Night", "#6366F1");
         await repo.AddAsync(cat);
 
         var found = await repo.GetByIdAsync(cat.Id);
@@ -107,11 +107,10 @@ public class ShiftCategoryRepositoryTests
         await using var db = CreateDb();
         var user = await SeedUserAsync(db);
         var repo = new ShiftCategoryRepository(db);
-        var cat = ShiftCategory.Create(user.Id, "Cat", "#AABBCC");
+        var cat = ShiftCategory.Create(user.Id, Guid.NewGuid(), "Cat", "#AABBCC");
         await repo.AddAsync(cat);
 
-        var shift = Shift.Create(user.Id, cat.Id, DateOnly.FromDateTime(DateTime.Today),
-            new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
+        var shift = Shift.Create(user.Id, Guid.NewGuid(), cat.Id, DateOnly.FromDateTime(DateTime.Today), new TimeOnly(9, 0), new TimeOnly(17, 0), null, null);
         db.Shifts.Add(shift);
         await db.SaveChangesAsync();
 
@@ -126,7 +125,7 @@ public class ShiftCategoryRepositoryTests
         await using var db = CreateDb();
         var user = await SeedUserAsync(db);
         var repo = new ShiftCategoryRepository(db);
-        var cat = ShiftCategory.Create(user.Id, "Empty Cat", "#AABBCC");
+        var cat = ShiftCategory.Create(user.Id, Guid.NewGuid(), "Empty Cat", "#AABBCC");
         await repo.AddAsync(cat);
 
         var hasShifts = await repo.HasShiftsAsync(cat.Id);
@@ -140,7 +139,7 @@ public class ShiftCategoryRepositoryTests
         await using var db = CreateDb();
         var user = await SeedUserAsync(db);
         var repo = new ShiftCategoryRepository(db);
-        var cat = ShiftCategory.Create(user.Id, "Old", "#000000");
+        var cat = ShiftCategory.Create(user.Id, Guid.NewGuid(), "Old", "#000000");
         await repo.AddAsync(cat);
 
         cat.Update("New", "#FFFFFF", null, null);
@@ -157,7 +156,7 @@ public class ShiftCategoryRepositoryTests
         await using var db = CreateDb();
         var user = await SeedUserAsync(db);
         var repo = new ShiftCategoryRepository(db);
-        var cat = ShiftCategory.Create(user.Id, "ToDelete", "#AABBCC");
+        var cat = ShiftCategory.Create(user.Id, Guid.NewGuid(), "ToDelete", "#AABBCC");
         await repo.AddAsync(cat);
 
         await repo.DeleteAsync(cat);

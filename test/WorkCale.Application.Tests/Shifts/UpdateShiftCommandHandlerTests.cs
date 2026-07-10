@@ -23,9 +23,8 @@ public class UpdateShiftCommandHandlerTests
     public async Task Handle_WithValidData_UpdatesAndReturnsDto()
     {
         var userId = Guid.NewGuid();
-        var category = ShiftCategory.Create(userId, "Night Shift", "#6366F1");
-        var shift = Shift.Create(userId, category.Id, new DateOnly(2026, 3, 10),
-            new TimeOnly(8, 0), new TimeOnly(16, 0), null, null);
+        var category = ShiftCategory.Create(userId, Guid.NewGuid(), "Night Shift", "#6366F1");
+        var shift = Shift.Create(userId, Guid.NewGuid(), category.Id, new DateOnly(2026, 3, 10), new TimeOnly(8, 0), new TimeOnly(16, 0), null, null);
 
         _shiftRepo.GetByIdAsync(shift.Id, default).Returns(shift);
         _categoryRepo.GetByIdAsync(category.Id, default).Returns(category);
@@ -57,9 +56,8 @@ public class UpdateShiftCommandHandlerTests
     public async Task Handle_WhenShiftOwnedByOtherUser_ThrowsUnauthorized()
     {
         var ownerId = Guid.NewGuid();
-        var category = ShiftCategory.Create(ownerId, "Day", "#F59E0B");
-        var shift = Shift.Create(ownerId, category.Id, new DateOnly(2026, 3, 10),
-            new TimeOnly(8, 0), new TimeOnly(16, 0), null, null);
+        var category = ShiftCategory.Create(ownerId, Guid.NewGuid(), "Day", "#F59E0B");
+        var shift = Shift.Create(ownerId, Guid.NewGuid(), category.Id, new DateOnly(2026, 3, 10), new TimeOnly(8, 0), new TimeOnly(16, 0), null, null);
 
         _shiftRepo.GetByIdAsync(shift.Id, default).Returns(shift);
 
@@ -75,9 +73,8 @@ public class UpdateShiftCommandHandlerTests
     {
         var userId = Guid.NewGuid();
         var otherUser = Guid.NewGuid();
-        var category = ShiftCategory.Create(otherUser, "Stolen Cat", "#F59E0B");
-        var shift = Shift.Create(userId, category.Id, new DateOnly(2026, 3, 10),
-            new TimeOnly(8, 0), new TimeOnly(16, 0), null, null);
+        var category = ShiftCategory.Create(otherUser, Guid.NewGuid(), "Stolen Cat", "#F59E0B");
+        var shift = Shift.Create(userId, Guid.NewGuid(), category.Id, new DateOnly(2026, 3, 10), new TimeOnly(8, 0), new TimeOnly(16, 0), null, null);
 
         _shiftRepo.GetByIdAsync(shift.Id, default).Returns(shift);
         _categoryRepo.GetByIdAsync(category.Id, default).Returns(category);

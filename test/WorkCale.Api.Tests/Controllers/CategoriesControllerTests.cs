@@ -16,8 +16,9 @@ public class CategoriesControllerTests
     private readonly CategoriesController _sut;
     private readonly Guid _userId = Guid.NewGuid();
 
+    private static readonly Guid SampleJobId = Guid.NewGuid();
     private static readonly ShiftCategoryDto SampleCategory =
-        new(Guid.NewGuid(), "Day Shift", "#F59E0B", null, null, null, DateTime.UtcNow);
+        new(Guid.NewGuid(), SampleJobId, "Day Shift", "#F59E0B", null, null, null, DateTime.UtcNow);
 
     public CategoriesControllerTests()
     {
@@ -34,7 +35,7 @@ public class CategoriesControllerTests
         _mediator.Send(Arg.Any<GetCategoriesQuery>(), Arg.Any<CancellationToken>())
             .Returns(categories);
 
-        var result = await _sut.GetAll(CancellationToken.None);
+        var result = await _sut.GetAll(null, CancellationToken.None);
 
         result.Result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeEquivalentTo(categories);
@@ -46,7 +47,7 @@ public class CategoriesControllerTests
         _mediator.Send(Arg.Any<GetCategoriesQuery>(), Arg.Any<CancellationToken>())
             .Returns(Array.Empty<ShiftCategoryDto>());
 
-        await _sut.GetAll(CancellationToken.None);
+        await _sut.GetAll(null, CancellationToken.None);
 
         await _mediator.Received(1).Send(
             Arg.Is<GetCategoriesQuery>(q => q.UserId == _userId),
@@ -62,7 +63,7 @@ public class CategoriesControllerTests
             .Returns(SampleCategory);
 
         var result = await _sut.Create(
-            new CreateCategoryRequest("Day Shift", "#F59E0B", null, null), CancellationToken.None);
+            new CreateCategoryRequest(SampleJobId, "Day Shift", "#F59E0B", null, null), CancellationToken.None);
 
         result.Result.Should().BeOfType<CreatedAtActionResult>()
             .Which.Value.Should().BeEquivalentTo(SampleCategory);
@@ -74,7 +75,7 @@ public class CategoriesControllerTests
         _mediator.Send(Arg.Any<CreateCategoryCommand>(), Arg.Any<CancellationToken>())
             .Returns(SampleCategory);
 
-        await _sut.Create(new CreateCategoryRequest("Day", "#AABBCC", null, null), CancellationToken.None);
+        await _sut.Create(new CreateCategoryRequest(SampleJobId, "Day", "#AABBCC", null, null), CancellationToken.None);
 
         await _mediator.Received(1).Send(
             Arg.Is<CreateCategoryCommand>(c => c.UserId == _userId && c.Name == "Day"),

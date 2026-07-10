@@ -10,6 +10,7 @@ namespace WorkCale.Application.Tests.Auth;
 public class GoogleLoginCommandHandlerTests
 {
     private readonly IUserRepository _userRepo = Substitute.For<IUserRepository>();
+    private readonly IJobRepository _jobRepo = Substitute.For<IJobRepository>();
     private readonly IShiftCategoryRepository _catRepo = Substitute.For<IShiftCategoryRepository>();
     private readonly IInviteCodeRepository _inviteRepo = Substitute.For<IInviteCodeRepository>();
     private readonly IGoogleTokenVerifier _google = Substitute.For<IGoogleTokenVerifier>();
@@ -21,7 +22,8 @@ public class GoogleLoginCommandHandlerTests
 
     public GoogleLoginCommandHandlerTests()
     {
-        _sut = new GoogleLoginCommandHandler(_userRepo, _catRepo, _inviteRepo, _google, _jwt, _tokenRepo);
+        _sut = new GoogleLoginCommandHandler(_userRepo, _jobRepo, _catRepo, _inviteRepo, _google, _jwt, _tokenRepo);
+        _jobRepo.AddAsync(Arg.Any<Job>(), default).Returns(Task.CompletedTask);
         _jwt.GenerateAccessToken(Arg.Any<User>()).Returns("access_token");
         _jwt.GenerateRefreshToken().Returns("refresh_token");
         // Any invite lookup returns redeemable by default; tests that want a rejection override explicitly.

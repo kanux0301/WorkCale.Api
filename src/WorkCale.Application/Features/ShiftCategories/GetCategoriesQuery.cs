@@ -3,4 +3,4 @@ using MediatR;
 
 namespace WorkCale.Application.Features.ShiftCategories;
 
-public record GetCategoriesQuery(Guid UserId) : IRequest<IEnumerable<ShiftCategoryDto>>;
+public record GetCategoriesQuery(Guid UserId, Guid? JobId = null) : IRequest<IEnumerable<ShiftCategoryDto>>;

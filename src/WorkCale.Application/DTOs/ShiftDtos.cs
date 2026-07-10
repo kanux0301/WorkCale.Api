@@ -4,6 +4,7 @@ namespace WorkCale.Application.DTOs;
 
 public record ShiftDto(
     Guid Id,
+    Guid JobId,
     DateOnly Date,
     string StartTime,
     string EndTime,

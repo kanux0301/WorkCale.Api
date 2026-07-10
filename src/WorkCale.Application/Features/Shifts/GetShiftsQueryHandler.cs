@@ -11,6 +11,8 @@ public class GetShiftsQueryHandler(IShiftRepository repository)
     public async Task<IEnumerable<ShiftDto>> Handle(GetShiftsQuery request, CancellationToken ct)
     {
         var shifts = await repository.GetByUserAndMonthAsync(request.UserId, request.Year, request.Month, ct);
+        if (request.JobId is Guid jobId)
+            shifts = shifts.Where(s => s.JobId == jobId);
         return shifts.Select(s => s.ToDto());
     }
 }

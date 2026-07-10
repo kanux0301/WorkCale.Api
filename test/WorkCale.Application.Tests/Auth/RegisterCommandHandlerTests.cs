@@ -10,6 +10,7 @@ namespace WorkCale.Application.Tests.Auth;
 public class RegisterCommandHandlerTests
 {
     private readonly IUserRepository _userRepo = Substitute.For<IUserRepository>();
+    private readonly IJobRepository _jobRepo = Substitute.For<IJobRepository>();
     private readonly IShiftCategoryRepository _categoryRepo = Substitute.For<IShiftCategoryRepository>();
     private readonly IInviteCodeRepository _inviteRepo = Substitute.For<IInviteCodeRepository>();
     private readonly IPasswordHasher _hasher = Substitute.For<IPasswordHasher>();
@@ -19,7 +20,8 @@ public class RegisterCommandHandlerTests
 
     public RegisterCommandHandlerTests()
     {
-        _handler = new RegisterCommandHandler(_userRepo, _categoryRepo, _inviteRepo, _hasher, _jwt, _refreshRepo);
+        _handler = new RegisterCommandHandler(_userRepo, _jobRepo, _categoryRepo, _inviteRepo, _hasher, _jwt, _refreshRepo);
+        _jobRepo.AddAsync(Arg.Any<Job>(), default).Returns(Task.CompletedTask);
         _hasher.Hash(Arg.Any<string>()).Returns("hashed_pw");
         _jwt.GenerateAccessToken(Arg.Any<User>()).Returns("access_token");
         _jwt.GenerateRefreshToken().Returns("refresh_token");

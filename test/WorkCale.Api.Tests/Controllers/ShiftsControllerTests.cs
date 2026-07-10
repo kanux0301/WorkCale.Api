@@ -16,9 +16,10 @@ public class ShiftsControllerTests
     private readonly ShiftsController _sut;
     private readonly Guid _userId = Guid.NewGuid();
 
-    private static readonly ShiftCategoryDto SampleCat = new(Guid.NewGuid(), "Day", "#F59E0B", null, null, null, DateTime.UtcNow);
+    private static readonly Guid SampleJobId = Guid.NewGuid();
+    private static readonly ShiftCategoryDto SampleCat = new(Guid.NewGuid(), SampleJobId, "Day", "#F59E0B", null, null, null, DateTime.UtcNow);
     private static readonly ShiftDto SampleShift = new(
-        Guid.NewGuid(), new DateOnly(2026, 3, 15),
+        Guid.NewGuid(), SampleJobId, new DateOnly(2026, 3, 15),
         "09:00", "17:00", null, null, 0,
         DateTime.UtcNow, DateTime.UtcNow, SampleCat);
 
@@ -36,7 +37,7 @@ public class ShiftsControllerTests
         _mediator.Send(Arg.Any<GetShiftsQuery>(), Arg.Any<CancellationToken>())
             .Returns(new[] { SampleShift });
 
-        var result = await _sut.GetByMonth(2026, 3, CancellationToken.None);
+        var result = await _sut.GetByMonth(2026, 3, null, CancellationToken.None);
 
         result.Result.Should().BeOfType<OkObjectResult>();
     }
@@ -47,7 +48,7 @@ public class ShiftsControllerTests
         _mediator.Send(Arg.Any<GetShiftsQuery>(), Arg.Any<CancellationToken>())
             .Returns(Array.Empty<ShiftDto>());
 
-        await _sut.GetByMonth(2026, 3, CancellationToken.None);
+        await _sut.GetByMonth(2026, 3, null, CancellationToken.None);
 
         await _mediator.Received(1).Send(
             Arg.Is<GetShiftsQuery>(q => q.UserId == _userId && q.Year == 2026 && q.Month == 3),
