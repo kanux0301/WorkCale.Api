@@ -17,6 +17,7 @@ public class User
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
+    public ICollection<Job> Jobs { get; private set; } = [];
     public ICollection<ShiftCategory> ShiftCategories { get; private set; } = [];
     public ICollection<Shift> Shifts { get; private set; } = [];
     public ICollection<CalendarShare> SharesGranted { get; private set; } = [];

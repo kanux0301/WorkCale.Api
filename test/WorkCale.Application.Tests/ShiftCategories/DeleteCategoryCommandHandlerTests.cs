@@ -21,7 +21,7 @@ public class DeleteCategoryCommandHandlerTests
     public async Task Handle_CategoryWithNoShifts_DeletesSuccessfully()
     {
         var userId = Guid.NewGuid();
-        var category = ShiftCategory.Create(userId, "Day", "#F59E0B");
+        var category = ShiftCategory.Create(userId, Guid.NewGuid(), "Day", "#F59E0B");
 
         _repo.GetByIdAsync(category.Id, default).Returns(category);
         _repo.HasShiftsAsync(category.Id, default).Returns(false);
@@ -36,7 +36,7 @@ public class DeleteCategoryCommandHandlerTests
     public async Task Handle_CategoryWithShifts_ThrowsInvalidOperation()
     {
         var userId = Guid.NewGuid();
-        var category = ShiftCategory.Create(userId, "Day", "#F59E0B");
+        var category = ShiftCategory.Create(userId, Guid.NewGuid(), "Day", "#F59E0B");
 
         _repo.GetByIdAsync(category.Id, default).Returns(category);
         _repo.HasShiftsAsync(category.Id, default).Returns(true);
@@ -48,7 +48,7 @@ public class DeleteCategoryCommandHandlerTests
     [Fact]
     public async Task Handle_OtherUsersCategory_ThrowsUnauthorized()
     {
-        var category = ShiftCategory.Create(Guid.NewGuid(), "Day", "#F59E0B");
+        var category = ShiftCategory.Create(Guid.NewGuid(), Guid.NewGuid(), "Day", "#F59E0B");
         _repo.GetByIdAsync(category.Id, default).Returns(category);
 
         await Assert.ThrowsAsync<UnauthorizedAccessException>(

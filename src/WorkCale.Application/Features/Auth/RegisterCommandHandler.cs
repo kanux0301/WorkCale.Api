@@ -8,6 +8,7 @@ namespace WorkCale.Application.Features.Auth;
 
 public class RegisterCommandHandler(
     IUserRepository userRepository,
+    IJobRepository jobRepository,
     IShiftCategoryRepository categoryRepository,
     IInviteCodeRepository inviteCodeRepository,
     IPasswordHasher passwordHasher,
@@ -30,7 +31,8 @@ public class RegisterCommandHandler(
         invite.Consume(user.Id, DateTime.UtcNow);
         await inviteCodeRepository.UpdateAsync(invite, ct);
 
-        await DefaultCategories.SeedAsync(categoryRepository, user.Id, ct);
+        var defaultJob = await DefaultJob.SeedAsync(jobRepository, user.Id, ct);
+        await DefaultCategories.SeedAsync(categoryRepository, user.Id, defaultJob.Id, ct);
 
         return await AuthTokenIssuer.IssueAsync(jwtService, refreshTokenRepository, user, ct);
     }

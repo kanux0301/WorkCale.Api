@@ -4,6 +4,7 @@ public class Shift
 {
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
+    public Guid JobId { get; private set; }
     public Guid CategoryId { get; private set; }
     public DateOnly Date { get; private set; }
     public TimeOnly StartTime { get; private set; }
@@ -16,11 +17,12 @@ public class Shift
     public DateTime UpdatedAt { get; private set; }
 
     public User User { get; private set; } = default!;
+    public Job Job { get; private set; } = default!;
     public ShiftCategory Category { get; private set; } = default!;
 
     private Shift() { }
 
-    public static Shift Create(Guid userId, Guid categoryId, DateOnly date,
+    public static Shift Create(Guid userId, Guid jobId, Guid categoryId, DateOnly date,
         TimeOnly startTime, TimeOnly endTime, string? location, string? notes,
         int unpaidBreakMinutes = 0)
     {
@@ -28,6 +30,7 @@ public class Shift
         {
             Id = Guid.NewGuid(),
             UserId = userId,
+            JobId = jobId,
             CategoryId = categoryId,
             Date = date,
             StartTime = startTime,
@@ -40,10 +43,11 @@ public class Shift
         };
     }
 
-    public void Update(Guid categoryId, DateOnly date, TimeOnly startTime,
+    public void Update(Guid jobId, Guid categoryId, DateOnly date, TimeOnly startTime,
         TimeOnly endTime, string? location, string? notes,
         int unpaidBreakMinutes = 0)
     {
+        JobId = jobId;
         CategoryId = categoryId;
         Date = date;
         StartTime = startTime;

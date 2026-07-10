@@ -23,8 +23,8 @@ public class GetCategoriesQueryHandlerTests
         var userId = Guid.NewGuid();
         var categories = new List<ShiftCategory>
         {
-            ShiftCategory.Create(userId, "Day Shift", "#F59E0B"),
-            ShiftCategory.Create(userId, "Night Shift", "#6366F1"),
+            ShiftCategory.Create(userId, Guid.NewGuid(), "Day Shift", "#F59E0B"),
+            ShiftCategory.Create(userId, Guid.NewGuid(), "Night Shift", "#6366F1"),
         };
         _repo.GetByUserIdAsync(userId, default).Returns(categories);
 

@@ -20,6 +20,8 @@ public class CategoriesEndpointTests(TestWebAppFactory factory) : IClassFixture<
         return (client, auth.AccessToken, cats!);
     }
 
+    private static Guid JobIdOf(List<ShiftCategoryDto> cats) => cats.First().JobId;
+
     // ── GET /api/categories ────────────────────────────────────────────────
 
     [Fact]
@@ -44,10 +46,10 @@ public class CategoriesEndpointTests(TestWebAppFactory factory) : IClassFixture<
     [Fact]
     public async Task CreateCategory_WithValidData_Returns201()
     {
-        var (client, _, _) = await SetupAsync();
+        var (client, _, cats) = await SetupAsync();
 
         var response = await client.PostAsJsonAsync("/api/categories",
-            new CreateCategoryRequest("Evening Shift", "#10B981", null, null));
+            new CreateCategoryRequest(JobIdOf(cats), "Evening Shift", "#10B981", null, null));
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var cat = await response.Content.ReadFromJsonAsync<ShiftCategoryDto>();

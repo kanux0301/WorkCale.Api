@@ -19,8 +19,7 @@ public class GetShiftsQueryHandlerTests
 
     private static Shift MakeShift(Guid userId, ShiftCategory category)
     {
-        var shift = Shift.Create(userId, category.Id, new DateOnly(2026, 3, 10),
-            new TimeOnly(8, 0), new TimeOnly(16, 0), null, null);
+        var shift = Shift.Create(userId, Guid.NewGuid(), category.Id, new DateOnly(2026, 3, 10), new TimeOnly(8, 0), new TimeOnly(16, 0), null, null);
         // Attach navigation property via reflection for test purposes
         typeof(Shift).GetProperty("Category")!
             .SetValue(shift, category);
@@ -31,7 +30,7 @@ public class GetShiftsQueryHandlerTests
     public async Task Handle_ReturnsMappedDtosForMonth()
     {
         var userId = Guid.NewGuid();
-        var category = ShiftCategory.Create(userId, "Day Shift", "#F59E0B");
+        var category = ShiftCategory.Create(userId, Guid.NewGuid(), "Day Shift", "#F59E0B");
         var shift = MakeShift(userId, category);
         _repo.GetByUserAndMonthAsync(userId, 2026, 3, default).Returns([shift]);
 

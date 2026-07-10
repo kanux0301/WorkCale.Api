@@ -10,12 +10,15 @@ public static class DomainMappings
     public static UserDto ToDto(this User user) =>
         new(user.Id, user.Email, user.DisplayName, user.AvatarUrl, user.AvatarColor, user.AvatarIcon);
 
+    public static JobDto ToDto(this Job job) =>
+        new(job.Id, job.Name, job.Color, job.Icon, job.IsDefault, job.IsArchived, job.SortOrder, job.CreatedAt);
+
     public static ShiftCategoryDto ToDto(this ShiftCategory category) =>
-        new(category.Id, category.Name, category.Color,
+        new(category.Id, category.JobId, category.Name, category.Color,
             category.DefaultStartTime, category.DefaultEndTime, category.Icon, category.CreatedAt);
 
     public static ShiftDto ToDto(this Shift shift) =>
-        new(shift.Id, shift.Date,
+        new(shift.Id, shift.JobId, shift.Date,
             shift.StartTime.ToString(TimeFormat),
             shift.EndTime.ToString(TimeFormat),
             shift.Location, shift.Notes, shift.UnpaidBreakMinutes,
@@ -23,7 +26,7 @@ public static class DomainMappings
             shift.Category.ToDto());
 
     public static ShiftDto ToDto(this Shift shift, ShiftCategory category) =>
-        new(shift.Id, shift.Date,
+        new(shift.Id, shift.JobId, shift.Date,
             shift.StartTime.ToString(TimeFormat),
             shift.EndTime.ToString(TimeFormat),
             shift.Location, shift.Notes, shift.UnpaidBreakMinutes,

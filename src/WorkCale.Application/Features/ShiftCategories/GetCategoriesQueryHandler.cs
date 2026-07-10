@@ -11,6 +11,8 @@ public class GetCategoriesQueryHandler(IShiftCategoryRepository repository)
     public async Task<IEnumerable<ShiftCategoryDto>> Handle(GetCategoriesQuery request, CancellationToken ct)
     {
         var categories = await repository.GetByUserIdAsync(request.UserId, ct);
+        if (request.JobId is Guid jobId)
+            categories = categories.Where(c => c.JobId == jobId);
         return categories.Select(c => c.ToDto());
     }
 }

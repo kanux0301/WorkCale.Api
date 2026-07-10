@@ -3,4 +3,4 @@ using MediatR;
 
 namespace WorkCale.Application.Features.ShiftCategories;
 
-public record CreateCategoryCommand(Guid UserId, string Name, string Color, string? DefaultStartTime, string? DefaultEndTime, string? Icon = null) : IRequest<ShiftCategoryDto>;
+public record CreateCategoryCommand(Guid UserId, Guid JobId, string Name, string Color, string? DefaultStartTime, string? DefaultEndTime, string? Icon = null) : IRequest<ShiftCategoryDto>;

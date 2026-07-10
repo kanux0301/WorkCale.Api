@@ -11,9 +11,9 @@ public static class DefaultCategories
         ("Night Shift", "#6366F1", "20:00", "04:00"),
     ];
 
-    public static async Task SeedAsync(IShiftCategoryRepository repository, Guid userId, CancellationToken ct)
+    public static async Task SeedAsync(IShiftCategoryRepository repository, Guid userId, Guid jobId, CancellationToken ct)
     {
         foreach (var (name, color, start, end) in Items)
-            await repository.AddAsync(ShiftCategory.Create(userId, name, color, start, end), ct);
+            await repository.AddAsync(ShiftCategory.Create(userId, jobId, name, color, start, end), ct);
     }
 }

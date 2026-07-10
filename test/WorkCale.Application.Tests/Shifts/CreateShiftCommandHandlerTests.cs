@@ -22,7 +22,7 @@ public class CreateShiftCommandHandlerTests
     public async Task Handle_WithValidCategory_CreatesShift()
     {
         var userId = Guid.NewGuid();
-        var category = ShiftCategory.Create(userId, "Day Shift", "#F59E0B");
+        var category = ShiftCategory.Create(userId, Guid.NewGuid(), "Day Shift", "#F59E0B");
 
         _categoryRepo.GetByIdAsync(category.Id, default).Returns(category);
         _shiftRepo.AddAsync(Arg.Any<Shift>(), default).Returns(Task.CompletedTask);
@@ -52,7 +52,7 @@ public class CreateShiftCommandHandlerTests
     [Fact]
     public async Task Handle_CategoryOwnedByOtherUser_ThrowsUnauthorized()
     {
-        var category = ShiftCategory.Create(Guid.NewGuid(), "Night", "#6366F1");
+        var category = ShiftCategory.Create(Guid.NewGuid(), Guid.NewGuid(), "Night", "#6366F1");
         _categoryRepo.GetByIdAsync(category.Id, default).Returns(category);
 
         var command = new CreateShiftCommand(Guid.NewGuid(), new DateOnly(2026, 3, 15),

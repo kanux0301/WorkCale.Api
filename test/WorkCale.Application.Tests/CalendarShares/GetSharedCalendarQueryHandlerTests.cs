@@ -21,8 +21,7 @@ public class GetSharedCalendarQueryHandlerTests
 
     private static Shift MakeShift(Guid userId, ShiftCategory category)
     {
-        var shift = Shift.Create(userId, category.Id, new DateOnly(2026, 3, 5),
-            new TimeOnly(8, 0), new TimeOnly(16, 0), null, null);
+        var shift = Shift.Create(userId, Guid.NewGuid(), category.Id, new DateOnly(2026, 3, 5), new TimeOnly(8, 0), new TimeOnly(16, 0), null, null);
         typeof(Shift).GetProperty("Category")!.SetValue(shift, category);
         return shift;
     }
@@ -33,7 +32,7 @@ public class GetSharedCalendarQueryHandlerTests
         var ownerId = Guid.NewGuid();
         var viewerId = Guid.NewGuid();
         var owner = User.Create("owner@test.com", "Owner", "hash");
-        var category = ShiftCategory.Create(ownerId, "Day Shift", "#F59E0B");
+        var category = ShiftCategory.Create(ownerId, Guid.NewGuid(), "Day Shift", "#F59E0B");
         var share = CalendarShare.Create(ownerId, viewerId);
         var shift = MakeShift(ownerId, category);
 

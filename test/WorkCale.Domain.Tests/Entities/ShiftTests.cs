@@ -14,7 +14,7 @@ public class ShiftTests
     [Fact]
     public void Create_SetsAllProperties()
     {
-        var shift = Shift.Create(UserId, CategoryId, Date, Start, End, "Office", "Notes here");
+        var shift = Shift.Create(UserId, Guid.NewGuid(), CategoryId, Date, Start, End, "Office", "Notes here");
 
         shift.Id.Should().NotBeEmpty();
         shift.UserId.Should().Be(UserId);
@@ -31,7 +31,7 @@ public class ShiftTests
     [Fact]
     public void Create_AllowsNullLocationAndNotes()
     {
-        var shift = Shift.Create(UserId, CategoryId, Date, Start, End, null, null);
+        var shift = Shift.Create(UserId, Guid.NewGuid(), CategoryId, Date, Start, End, null, null);
         shift.Location.Should().BeNull();
         shift.Notes.Should().BeNull();
     }
@@ -39,12 +39,12 @@ public class ShiftTests
     [Fact]
     public void Update_ChangesFields()
     {
-        var shift = Shift.Create(UserId, CategoryId, Date, Start, End, "Office", "Old notes");
+        var shift = Shift.Create(UserId, Guid.NewGuid(), CategoryId, Date, Start, End, "Office", "Old notes");
         var newCatId = Guid.NewGuid();
         var newDate = new DateOnly(2026, 4, 1);
         var beforeUpdate = shift.UpdatedAt;
 
-        shift.Update(newCatId, newDate, new TimeOnly(8, 0), new TimeOnly(16, 0), "Home", "New notes");
+        shift.Update(Guid.NewGuid(), newCatId, newDate, new TimeOnly(8, 0), new TimeOnly(16, 0), "Home", "New notes");
 
         shift.CategoryId.Should().Be(newCatId);
         shift.Date.Should().Be(newDate);
@@ -58,10 +58,10 @@ public class ShiftTests
     [Fact]
     public void Update_DoesNotChangeCreatedAt()
     {
-        var shift = Shift.Create(UserId, CategoryId, Date, Start, End, null, null);
+        var shift = Shift.Create(UserId, Guid.NewGuid(), CategoryId, Date, Start, End, null, null);
         var created = shift.CreatedAt;
 
-        shift.Update(CategoryId, Date, Start, End, null, null);
+        shift.Update(Guid.NewGuid(), CategoryId, Date, Start, End, null, null);
 
         shift.CreatedAt.Should().Be(created);
     }
